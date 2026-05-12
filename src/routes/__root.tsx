@@ -7,6 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { BottomNav } from "@/components/bottom-nav";
 
 import appCss from "../styles.css?url";
 
