@@ -15,6 +15,7 @@ import { Route as PlayerRouteImport } from './routes/player'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PausaRouteImport } from './routes/pausa'
 import { Route as MapaRouteImport } from './routes/mapa'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ApoioRouteImport } from './routes/apoio'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -49,6 +50,11 @@ const MapaRoute = MapaRouteImport.update({
   path: '/mapa',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApoioRoute = ApoioRouteImport.update({
   id: '/apoio',
   path: '/apoio',
@@ -68,6 +74,7 @@ const ApiChatRoute = ApiChatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/apoio': typeof ApoioRoute
+  '/chat': typeof ChatRoute
   '/mapa': typeof MapaRoute
   '/pausa': typeof PausaRoute
   '/perfil': typeof PerfilRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/apoio': typeof ApoioRoute
+  '/chat': typeof ChatRoute
   '/mapa': typeof MapaRoute
   '/pausa': typeof PausaRoute
   '/perfil': typeof PerfilRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/apoio': typeof ApoioRoute
+  '/chat': typeof ChatRoute
   '/mapa': typeof MapaRoute
   '/pausa': typeof PausaRoute
   '/perfil': typeof PerfilRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/apoio'
+    | '/chat'
     | '/mapa'
     | '/pausa'
     | '/perfil'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/apoio'
+    | '/chat'
     | '/mapa'
     | '/pausa'
     | '/perfil'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/apoio'
+    | '/chat'
     | '/mapa'
     | '/pausa'
     | '/perfil'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApoioRoute: typeof ApoioRoute
+  ChatRoute: typeof ChatRoute
   MapaRoute: typeof MapaRoute
   PausaRoute: typeof PausaRoute
   PerfilRoute: typeof PerfilRoute
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/apoio': {
       id: '/apoio'
       path: '/apoio'
@@ -218,6 +238,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApoioRoute: ApoioRoute,
+  ChatRoute: ChatRoute,
   MapaRoute: MapaRoute,
   PausaRoute: PausaRoute,
   PerfilRoute: PerfilRoute,
@@ -229,3 +250,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
