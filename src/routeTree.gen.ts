@@ -9,38 +9,215 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ReflexoesRouteImport } from './routes/reflexoes'
+import { Route as RecursosRouteImport } from './routes/recursos'
+import { Route as PlayerRouteImport } from './routes/player'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PausaRouteImport } from './routes/pausa'
+import { Route as MapaRouteImport } from './routes/mapa'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ApoioRouteImport } from './routes/apoio'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
+const ReflexoesRoute = ReflexoesRouteImport.update({
+  id: '/reflexoes',
+  path: '/reflexoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecursosRoute = RecursosRouteImport.update({
+  id: '/recursos',
+  path: '/recursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayerRoute = PlayerRouteImport.update({
+  id: '/player',
+  path: '/player',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PausaRoute = PausaRouteImport.update({
+  id: '/pausa',
+  path: '/pausa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaRoute = MapaRouteImport.update({
+  id: '/mapa',
+  path: '/mapa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApoioRoute = ApoioRouteImport.update({
+  id: '/apoio',
+  path: '/apoio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/apoio': typeof ApoioRoute
+  '/chat': typeof ChatRoute
+  '/mapa': typeof MapaRoute
+  '/pausa': typeof PausaRoute
+  '/perfil': typeof PerfilRoute
+  '/player': typeof PlayerRoute
+  '/recursos': typeof RecursosRoute
+  '/reflexoes': typeof ReflexoesRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/apoio': typeof ApoioRoute
+  '/chat': typeof ChatRoute
+  '/mapa': typeof MapaRoute
+  '/pausa': typeof PausaRoute
+  '/perfil': typeof PerfilRoute
+  '/player': typeof PlayerRoute
+  '/recursos': typeof RecursosRoute
+  '/reflexoes': typeof ReflexoesRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/apoio': typeof ApoioRoute
+  '/chat': typeof ChatRoute
+  '/mapa': typeof MapaRoute
+  '/pausa': typeof PausaRoute
+  '/perfil': typeof PerfilRoute
+  '/player': typeof PlayerRoute
+  '/recursos': typeof RecursosRoute
+  '/reflexoes': typeof ReflexoesRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/apoio'
+    | '/chat'
+    | '/mapa'
+    | '/pausa'
+    | '/perfil'
+    | '/player'
+    | '/recursos'
+    | '/reflexoes'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/apoio'
+    | '/chat'
+    | '/mapa'
+    | '/pausa'
+    | '/perfil'
+    | '/player'
+    | '/recursos'
+    | '/reflexoes'
+    | '/api/chat'
+  id:
+    | '__root__'
+    | '/'
+    | '/apoio'
+    | '/chat'
+    | '/mapa'
+    | '/pausa'
+    | '/perfil'
+    | '/player'
+    | '/recursos'
+    | '/reflexoes'
+    | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApoioRoute: typeof ApoioRoute
+  ChatRoute: typeof ChatRoute
+  MapaRoute: typeof MapaRoute
+  PausaRoute: typeof PausaRoute
+  PerfilRoute: typeof PerfilRoute
+  PlayerRoute: typeof PlayerRoute
+  RecursosRoute: typeof RecursosRoute
+  ReflexoesRoute: typeof ReflexoesRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reflexoes': {
+      id: '/reflexoes'
+      path: '/reflexoes'
+      fullPath: '/reflexoes'
+      preLoaderRoute: typeof ReflexoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recursos': {
+      id: '/recursos'
+      path: '/recursos'
+      fullPath: '/recursos'
+      preLoaderRoute: typeof RecursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/player': {
+      id: '/player'
+      path: '/player'
+      fullPath: '/player'
+      preLoaderRoute: typeof PlayerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pausa': {
+      id: '/pausa'
+      path: '/pausa'
+      fullPath: '/pausa'
+      preLoaderRoute: typeof PausaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa': {
+      id: '/mapa'
+      path: '/mapa'
+      fullPath: '/mapa'
+      preLoaderRoute: typeof MapaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apoio': {
+      id: '/apoio'
+      path: '/apoio'
+      fullPath: '/apoio'
+      preLoaderRoute: typeof ApoioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +225,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApoioRoute: ApoioRoute,
+  ChatRoute: ChatRoute,
+  MapaRoute: MapaRoute,
+  PausaRoute: PausaRoute,
+  PerfilRoute: PerfilRoute,
+  PlayerRoute: PlayerRoute,
+  RecursosRoute: RecursosRoute,
+  ReflexoesRoute: ReflexoesRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

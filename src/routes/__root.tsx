@@ -7,6 +7,8 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { BottomNav } from "@/components/bottom-nav";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
@@ -71,20 +73,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#2f6bd6" },
+      { title: "ConectaMente — Apoio à saúde mental para estudantes" },
+      {
+        name: "description",
+        content:
+          "ConectaMente: app de apoio à saúde mental para estudantes. Conversa Amiga anônima, reflexões, músicas calmas e localizador de apoio profissional em Corumbá-MS.",
+      },
+      { property: "og:title", content: "ConectaMente — Apoio à saúde mental" },
+      {
+        property: "og:description",
+        content:
+          "Conversa Amiga anônima, reflexões e localizador de apoio profissional para estudantes.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+        integrity: "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=",
+        crossOrigin: "",
       },
     ],
   }),
@@ -96,7 +108,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <HeadContent />
       </head>
@@ -113,7 +125,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div className="app-shell">
+        <div className="app-content">
+          <Outlet />
+        </div>
+        <BottomNav />
+      </div>
+      <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
 }
+
