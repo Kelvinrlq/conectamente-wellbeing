@@ -14,6 +14,7 @@ import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as PlayerRouteImport } from './routes/player'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PausaRouteImport } from './routes/pausa'
+import { Route as MapaRouteImport } from './routes/mapa'
 import { Route as ApoioRouteImport } from './routes/apoio'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -43,6 +44,11 @@ const PausaRoute = PausaRouteImport.update({
   path: '/pausa',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MapaRoute = MapaRouteImport.update({
+  id: '/mapa',
+  path: '/mapa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApoioRoute = ApoioRouteImport.update({
   id: '/apoio',
   path: '/apoio',
@@ -62,6 +68,7 @@ const ApiChatRoute = ApiChatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/apoio': typeof ApoioRoute
+  '/mapa': typeof MapaRoute
   '/pausa': typeof PausaRoute
   '/perfil': typeof PerfilRoute
   '/player': typeof PlayerRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/apoio': typeof ApoioRoute
+  '/mapa': typeof MapaRoute
   '/pausa': typeof PausaRoute
   '/perfil': typeof PerfilRoute
   '/player': typeof PlayerRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/apoio': typeof ApoioRoute
+  '/mapa': typeof MapaRoute
   '/pausa': typeof PausaRoute
   '/perfil': typeof PerfilRoute
   '/player': typeof PlayerRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/apoio'
+    | '/mapa'
     | '/pausa'
     | '/perfil'
     | '/player'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/apoio'
+    | '/mapa'
     | '/pausa'
     | '/perfil'
     | '/player'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/apoio'
+    | '/mapa'
     | '/pausa'
     | '/perfil'
     | '/player'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApoioRoute: typeof ApoioRoute
+  MapaRoute: typeof MapaRoute
   PausaRoute: typeof PausaRoute
   PerfilRoute: typeof PerfilRoute
   PlayerRoute: typeof PlayerRoute
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PausaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mapa': {
+      id: '/mapa'
+      path: '/mapa'
+      fullPath: '/mapa'
+      preLoaderRoute: typeof MapaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/apoio': {
       id: '/apoio'
       path: '/apoio'
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApoioRoute: ApoioRoute,
+  MapaRoute: MapaRoute,
   PausaRoute: PausaRoute,
   PerfilRoute: PerfilRoute,
   PlayerRoute: PlayerRoute,
