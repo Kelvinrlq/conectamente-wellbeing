@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
 import { useState } from "react";
-import { playlistsSpotify } from "@/data/conteudo";
+import { playlistsYoutube } from "@/data/conteudo";
 import { ArrowLeft, Music, Headphones, Moon, Brain } from "lucide-react";
 
 export const Route = createFileRoute("/player")({
