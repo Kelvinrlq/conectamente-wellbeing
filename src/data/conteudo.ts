@@ -41,39 +41,39 @@ export const meditacoesDestaque = [
 
 // Como trocar as playlists:
 // 1. Abra a playlist desejada no YouTube.
-// 2. Copie tudo que vem depois de `list=` na URL. Ex.:
-//    https://www.youtube.com/playlist?list=PLxxxxxxxxxxxxxxxx  ->  playlistId = "PLxxxxxxxxxxxxxxxx"
-// 3. Cole em `playlistId` abaixo. O player mostrará a duração real de cada faixa.
+// 2. Copie o ID que vem depois de `v=` na URL. Ex.:
+//    https://www.youtube.com/watch?v=jfKfPfyJRdk  ->  videoId = "jfKfPfyJRdk"
+// 3. Cole em `videoId` abaixo. O player mostrará a duração real do vídeo.
 export const playlistsYoutube: Record<
   "natureza" | "foco" | "sono" | "meditacao",
-  { nome: string; playlistId: string; descricao: string }[]
+  { nome: string; videoId: string; descricao: string }[]
 > = {
   natureza: [
     {
-      nome: "Sons da Natureza",
-      playlistId: "PLQ_PIlf6OzqKidt2vHFrxUFDsQKZR9OWv",
-      descricao: "Chuva, floresta e oceano para relaxar",
+      nome: "Chuva e Trovões (10h)",
+      videoId: "BSmYxnvUDHw",
+      descricao: "Chuva com trovões ao fundo para relaxar",
     },
   ],
   foco: [
     {
-      nome: "Foco Profundo",
-      playlistId: "PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo",
-      descricao: "Lofi e concentração para estudar",
+      nome: "Lofi para Estudar (24/7)",
+      videoId: "jfKfPfyJRdk",
+      descricao: "Lofi Girl — concentração e foco",
     },
   ],
   sono: [
     {
-      nome: "Sono Tranquilo",
-      playlistId: "PLQ_PIlf6OzqKGKrOwceIrLfPZBHRVPQTS",
-      descricao: "Para uma noite de descanso",
+      nome: "Chuva Suave (10h)",
+      videoId: "zSKfyjcR4x4",
+      descricao: "Som de chuva contínuo para dormir",
     },
   ],
   meditacao: [
     {
-      nome: "Meditações Guiadas",
-      playlistId: "PLbTctBAEcCcQKrKvVAgYFJZaZKPtOO_r_",
-      descricao: "Mindfulness em português",
+      nome: "Meditação para Ansiedade",
+      videoId: "Z1y3Alas8Zs",
+      descricao: "Meditação guiada em português (Camila Zen)",
     },
   ],
 };
