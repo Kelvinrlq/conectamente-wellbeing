@@ -57,9 +57,9 @@ export const playlistsYoutube: Record<
   ],
   foco: [
     {
-      nome: "Lofi para Estudar (24/7)",
-      videoId: "jfKfPfyJRdk",
-      descricao: "Lofi Girl — concentração e foco",
+      nome: "Lofi para Focar (1h)",
+      videoId: "5yx6BWlEVcY",
+      descricao: "Mix de lofi para concentração e estudo",
     },
   ],
   sono: [
