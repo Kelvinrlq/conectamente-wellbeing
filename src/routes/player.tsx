@@ -78,10 +78,6 @@ function Player() {
               loading="lazy"
             />
           </div>
-          <p className="mt-3 text-[11px] text-muted-foreground">
-            Para trocar, copie o ID depois de <code>v=</code> na URL do vídeo do YouTube e cole em{" "}
-            <code>src/data/conteudo.ts</code>.
-          </p>
         </div>
       </section>
     </div>
