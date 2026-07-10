@@ -69,11 +69,9 @@ function Player() {
           <p className="mt-0.5 text-xs text-muted-foreground">{playlist.descricao}</p>
           <div className="mt-3 aspect-video overflow-hidden rounded-xl bg-black">
             <iframe
-              key={playlist.playlistId}
+              key={playlist.videoId}
               title={playlist.nome}
-              src={`https://www.youtube.com/embed/videoseries?list=${playlist.playlistId}&rel=0&modestbranding=1`}
-              width="100%"
-              height="100%"
+              src={`https://www.youtube.com/embed/${playlist.videoId}?rel=0&modestbranding=1`}
               style={{ border: 0, width: "100%", height: "100%" }}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -81,8 +79,8 @@ function Player() {
             />
           </div>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Para trocar, copie o ID depois de <code>list=</code> na URL da playlist do YouTube e cole
-            em <code>src/data/conteudo.ts</code>.
+            Para trocar, copie o ID depois de <code>v=</code> na URL do vídeo do YouTube e cole em{" "}
+            <code>src/data/conteudo.ts</code>.
           </p>
         </div>
       </section>
