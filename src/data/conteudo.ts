@@ -39,35 +39,40 @@ export const meditacoesDestaque = [
   { titulo: "Foco antes da Prova", duracao: "6 min", categoria: "Foco" },
 ];
 
-export const playlistsSpotify: Record<
+// Como trocar as playlists:
+// 1. Abra a playlist desejada no YouTube.
+// 2. Copie tudo que vem depois de `list=` na URL. Ex.:
+//    https://www.youtube.com/playlist?list=PLxxxxxxxxxxxxxxxx  ->  playlistId = "PLxxxxxxxxxxxxxxxx"
+// 3. Cole em `playlistId` abaixo. O player mostrará a duração real de cada faixa.
+export const playlistsYoutube: Record<
   "natureza" | "foco" | "sono" | "meditacao",
-  { nome: string; embedId: string; descricao: string }[]
+  { nome: string; playlistId: string; descricao: string }[]
 > = {
   natureza: [
     {
       nome: "Sons da Natureza",
-      embedId: "37i9dQZF1DX4PP3DA4J0N8",
+      playlistId: "PLQ_PIlf6OzqKidt2vHFrxUFDsQKZR9OWv",
       descricao: "Chuva, floresta e oceano para relaxar",
     },
   ],
   foco: [
     {
       nome: "Foco Profundo",
-      embedId: "37i9dQZF1DWZeKCadgRdKQ",
-      descricao: "Concentração para estudar",
+      playlistId: "PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo",
+      descricao: "Lofi e concentração para estudar",
     },
   ],
   sono: [
     {
       nome: "Sono Tranquilo",
-      embedId: "37i9dQZF1DWZd79rJ6a7lp",
+      playlistId: "PLQ_PIlf6OzqKGKrOwceIrLfPZBHRVPQTS",
       descricao: "Para uma noite de descanso",
     },
   ],
   meditacao: [
     {
       nome: "Meditações Guiadas",
-      embedId: "37i9dQZF1DWZqd5JICZI0u",
+      playlistId: "PLbTctBAEcCcQKrKvVAgYFJZaZKPtOO_r_",
       descricao: "Mindfulness em português",
     },
   ],
