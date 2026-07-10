@@ -67,21 +67,22 @@ function Player() {
         <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
           <h3 className="text-sm font-bold text-card-foreground">{playlist.nome}</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">{playlist.descricao}</p>
-          <div className="mt-3 overflow-hidden rounded-xl">
+          <div className="mt-3 aspect-video overflow-hidden rounded-xl bg-black">
             <iframe
-              key={playlist.embedId}
+              key={playlist.playlistId}
               title={playlist.nome}
-              src={`https://open.spotify.com/embed/playlist/${playlist.embedId}?utm_source=generator&theme=0`}
+              src={`https://www.youtube.com/embed/videoseries?list=${playlist.playlistId}&rel=0&modestbranding=1`}
               width="100%"
-              height={352}
-              style={{ border: 0 }}
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              height="100%"
+              style={{ border: 0, width: "100%", height: "100%" }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
               loading="lazy"
             />
           </div>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Substitua o ID da playlist em <code>src/data/conteudo.ts</code> pela sua playlist favorita
-            do Spotify.
+            Para trocar, copie o ID depois de <code>list=</code> na URL da playlist do YouTube e cole
+            em <code>src/data/conteudo.ts</code>.
           </p>
         </div>
       </section>
