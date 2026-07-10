@@ -17,7 +17,7 @@ export const Route = createFileRoute("/player")({
   component: Player,
 });
 
-type Cat = keyof typeof playlistsSpotify;
+type Cat = keyof typeof playlistsYoutube;
 
 const tabs: { id: Cat; label: string; icon: typeof Music }[] = [
   { id: "natureza", label: "Natureza", icon: Music },
@@ -28,7 +28,7 @@ const tabs: { id: Cat; label: string; icon: typeof Music }[] = [
 
 function Player() {
   const [cat, setCat] = useState<Cat>("natureza");
-  const playlist = playlistsSpotify[cat][0];
+  const playlist = playlistsYoutube[cat][0];
 
   return (
     <div>
