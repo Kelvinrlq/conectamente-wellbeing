@@ -28,6 +28,8 @@ type Filtro = CategoriaApoio | "todos";
 
 function Mapa() {
   const [f, setF] = useState<Filtro>("todos");
+  const [client, setClient] = useState(false);
+  useEffect(() => setClient(true), []);
   const filtrados = useMemo(
     () => (f === "todos" ? locaisApoio : locaisApoio.filter((l) => l.categoria === f)),
     [f],
@@ -65,11 +67,15 @@ function Mapa() {
       </section>
 
       <section className="px-5 pt-2">
-        <Suspense
-          fallback={<div className="h-[320px] w-full animate-pulse rounded-2xl bg-secondary" />}
-        >
-          <MapaApoio locais={filtrados} />
-        </Suspense>
+        {client ? (
+          <Suspense
+            fallback={<div className="h-[320px] w-full animate-pulse rounded-2xl bg-secondary" />}
+          >
+            <MapaApoio locais={filtrados} />
+          </Suspense>
+        ) : (
+          <div className="h-[320px] w-full animate-pulse rounded-2xl bg-secondary" />
+        )}
       </section>
 
       <section className="px-5 pt-4 space-y-2">
