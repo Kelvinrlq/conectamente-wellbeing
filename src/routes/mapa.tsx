@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, MapPin, Phone, ExternalLink } from "lucide-react";
 import {
   filtros,
@@ -28,6 +28,8 @@ type Filtro = CategoriaApoio | "todos";
 
 function Mapa() {
   const [f, setF] = useState<Filtro>("todos");
+  const [client, setClient] = useState(false);
+  useEffect(() => setClient(true), []);
   const filtrados = useMemo(
     () => (f === "todos" ? locaisApoio : locaisApoio.filter((l) => l.categoria === f)),
     [f],
@@ -65,11 +67,15 @@ function Mapa() {
       </section>
 
       <section className="px-5 pt-2">
-        <Suspense
-          fallback={<div className="h-[320px] w-full animate-pulse rounded-2xl bg-secondary" />}
-        >
-          <MapaApoio locais={filtrados} />
-        </Suspense>
+        {client ? (
+          <Suspense
+            fallback={<div className="h-[320px] w-full animate-pulse rounded-2xl bg-secondary" />}
+          >
+            <MapaApoio locais={filtrados} />
+          </Suspense>
+        ) : (
+          <div className="h-[320px] w-full animate-pulse rounded-2xl bg-secondary" />
+        )}
       </section>
 
       <section className="px-5 pt-4 space-y-2">
@@ -89,12 +95,14 @@ function Mapa() {
                 ) : null}
                 <p className="mt-1 text-xs text-muted-foreground">{l.endereco}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <a
-                    href={`tel:${l.telefone.replace(/\D/g, "")}`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground"
-                  >
-                    <Phone className="h-3 w-3" /> {l.telefone}
-                  </a>
+                  {l.telefone ? (
+                    <a
+                      href={`tel:${l.telefone.replace(/\D/g, "")}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground"
+                    >
+                      <Phone className="h-3 w-3" /> {l.telefone}
+                    </a>
+                  ) : null}
                   {typeof l.lat === "number" && typeof l.lng === "number" ? (
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
