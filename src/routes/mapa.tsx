@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, MapPin, Phone, ExternalLink } from "lucide-react";
 import {
   filtros,
@@ -89,12 +89,14 @@ function Mapa() {
                 ) : null}
                 <p className="mt-1 text-xs text-muted-foreground">{l.endereco}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <a
-                    href={`tel:${l.telefone.replace(/\D/g, "")}`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground"
-                  >
-                    <Phone className="h-3 w-3" /> {l.telefone}
-                  </a>
+                  {l.telefone ? (
+                    <a
+                      href={`tel:${l.telefone.replace(/\D/g, "")}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground"
+                    >
+                      <Phone className="h-3 w-3" /> {l.telefone}
+                    </a>
+                  ) : null}
                   {typeof l.lat === "number" && typeof l.lng === "number" ? (
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
