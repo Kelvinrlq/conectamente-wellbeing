@@ -22,7 +22,7 @@ function makeIcon(color: string) {
 }
 
 const ICONS = {
-  online: makeIcon("oklch(0.55 0.14 245)"),
+  psicologo: makeIcon("oklch(0.55 0.14 245)"),
   publica: makeIcon("oklch(0.55 0.13 175)"),
 };
 
@@ -77,7 +77,9 @@ export default function MapaApoio({ locais }: { locais: LocalApoio[] }) {
               <div style={{ minWidth: 180 }}>
                 <strong>{l.nome}</strong>
                 <div style={{ fontSize: 12, marginTop: 4 }}>{l.endereco}</div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>📞 {l.telefone}</div>
+                {l.telefone ? (
+                  <div style={{ fontSize: 12, marginTop: 4 }}>📞 {l.telefone}</div>
+                ) : null}
               </div>
             </Popup>
           </Marker>
