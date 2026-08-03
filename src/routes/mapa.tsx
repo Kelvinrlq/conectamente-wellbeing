@@ -95,25 +95,24 @@ function Mapa() {
                   >
                     <Phone className="h-3 w-3" /> {l.telefone}
                   </a>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${l.lat},${l.lng}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-semibold text-foreground"
-                  >
-                    <ExternalLink className="h-3 w-3" /> Google Maps
-                  </a>
+                  {typeof l.lat === "number" && typeof l.lng === "number" ? (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        `${l.nome}, ${l.endereco}`,
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-semibold text-foreground"
+                    >
+                      <ExternalLink className="h-3 w-3" /> Google Maps
+                    </a>
+                  ) : null}
                 </div>
               </div>
             </div>
           </article>
         ))}
       </section>
-
-      <p className="px-5 pt-4 pb-2 text-center text-[11px] text-muted-foreground">
-        Os pontos exibidos são exemplos. Substitua pelos endereços reais em{" "}
-        <code>src/data/locais.ts</code>.
-      </p>
     </div>
   );
 }
