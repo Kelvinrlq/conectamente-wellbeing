@@ -1,5 +1,6 @@
-import "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { convertToModelMessages, streamText, type UIMessage } from "ai";
 
 const SYSTEM_PROMPT = `Você é a "Conversa Amiga" do ConectaMente — um aplicativo brasileiro de apoio à saúde mental para estudantes.
 
@@ -27,75 +28,46 @@ export const Route = createFileRoute("/api/chat")({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         try {
-          const apiKey = process.env.GROQ_API_KEY;
+          const apiKey = process.env["GROQ_API_KEY"];
 
           if (!apiKey) {
             return new Response(
-              JSON.stringify({ error: "Chave GROQ_API_KEY não configurada na Vercel." }),
+              JSON.stringify({ error: "Chave GROQ_API_KEY não configurada." }),
               { status: 500, headers: { "Content-Type": "application/json" } }
             );
           }
 
-          const body = await request.json();
-          const messages = body.messages || [];
+          const body = (await request.json()) as { messages?: UIMessage[] };
+          const messages = body.messages;
 
           if (!Array.isArray(messages) || messages.length === 0) {
-            return new Response(JSON.stringify({ error: "Mensagens inválidas" }), { status: 400 });
+            return new Response(JSON.stringify({ error: "Mensagens inválidas" }), {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
-          // Formata as mensagens para a API Groq/OpenAI
-          const formattedMessages = [
-            { role: "system", content: SYSTEM_PROMPT },
-            ...messages.map((m: any) => ({
-              role: m.role === "user" ? "user" : "assistant",
-              content: typeof m.content === "string" ? m.content : m.parts?.[0]?.text || "",
-            })),
-          ];
-
-          const apiResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              model: "llama-3.3-70b-versatile",
-              messages: formattedMessages,
-              temperature: 0.7,
-              max_tokens: 500,
-            }),
+          const groq = createOpenAICompatible({
+            name: "groq",
+            baseURL: "https://api.groq.com/openai/v1",
+            headers: { Authorization: `Bearer ${apiKey}` },
           });
 
-          const data = await apiResponse.json();
+          const result = streamText({
+            model: groq("llama-3.3-70b-versatile"),
+            system: SYSTEM_PROMPT,
+            messages: await convertToModelMessages(messages),
+            temperature: 0.7,
+          });
 
-          if (!apiResponse.ok) {
-            console.error("Groq API error:", data);
-            return new Response(
-              JSON.stringify({ error: data.error?.message || "Erro na API Groq" }),
-              { status: apiResponse.status, headers: { "Content-Type": "application/json" } }
-            );
-          }
-
-          const text = data.choices?.[0]?.message?.content || "Desculpe, não consegui processar sua resposta no momento.";
-
-          // Enviamos um "Curinga" com todas as variações para o frontend encontrar!
-          return new Response(JSON.stringify({ 
-            text: text,
-            message: text,
-            response: text,
-            resposta: text,
-            content: text,
-            choices: data.choices // Caso o frontend espere o padrão OpenAI original
-          }), {
+          return result.toUIMessageStreamResponse({ originalMessages: messages });
+        } catch (e) {
+          const message = e instanceof Error ? e.message : "Erro interno no servidor";
+          console.error("chat route error", e);
+          return new Response(JSON.stringify({ error: message }), {
+            status: 500,
             headers: { "Content-Type": "application/json" },
           });
-          
-        } catch (e: any) {
-          console.error("chat route error", e);
-          return new Response(
-            JSON.stringify({ error: e.message || "Erro interno no servidor" }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
-          );
         }
       },
     },
