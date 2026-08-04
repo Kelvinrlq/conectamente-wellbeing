@@ -23,9 +23,20 @@ Em qualquer sinal de risco (autolesão, ideação suicida, violência, abuso), r
 
 Mantenha respostas curtas (2 a 5 frases). Use linguagem simples. Faça uma pergunta aberta no fim, se apropriado.`;
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Max-Age": "86400",
+};
+
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
+      OPTIONS: async () => {
+        return new Response(null, { status: 204, headers: CORS_HEADERS });
+      },
+
       POST: async ({ request }: { request: Request }) => {
         try {
           const apiKey = process.env["GROQ_API_KEY"];
@@ -33,7 +44,7 @@ export const Route = createFileRoute("/api/chat")({
           if (!apiKey) {
             return new Response(
               JSON.stringify({ error: "Chave GROQ_API_KEY não configurada." }),
-              { status: 500, headers: { "Content-Type": "application/json" } }
+              { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
             );
           }
 
@@ -43,7 +54,7 @@ export const Route = createFileRoute("/api/chat")({
           if (!Array.isArray(messages) || messages.length === 0) {
             return new Response(JSON.stringify({ error: "Mensagens inválidas" }), {
               status: 400,
-              headers: { "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json", ...CORS_HEADERS },
             });
           }
 
@@ -60,13 +71,21 @@ export const Route = createFileRoute("/api/chat")({
             temperature: 0.7,
           });
 
-          return result.toUIMessageStreamResponse({ originalMessages: messages });
+          const response = result.toUIMessageStreamResponse({ originalMessages: messages });
+          const headers = new Headers(response.headers);
+          Object.entries(CORS_HEADERS).forEach(([key, value]) => headers.set(key, value));
+
+          return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers,
+          });
         } catch (e) {
           const message = e instanceof Error ? e.message : "Erro interno no servidor";
           console.error("chat route error", e);
           return new Response(JSON.stringify({ error: message }), {
             status: 500,
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...CORS_HEADERS },
           });
         }
       },
