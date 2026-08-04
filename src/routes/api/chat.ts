@@ -47,9 +47,9 @@ export const Route = createFileRoute("/api/chat")({
               : lastUserMessage.parts?.[0]?.text || ""
             : "";
 
-          // Chamada direta via SDK oficial do Google
+          // Modelo atualizado para o identificador ativo no @google/genai
           const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-2.0-flash",
             contents: promptText,
             config: {
               systemInstruction: SYSTEM_PROMPT,
