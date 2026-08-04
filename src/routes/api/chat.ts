@@ -1,7 +1,10 @@
 import "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
-import { google } from "@ai-sdk/google";
+import { GoogleGenAI } from "@google/genai";
+
+// Inicialização oficial do SDK do Google Generative AI
+const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || "";
+const ai = new GoogleGenAI({ apiKey });
 
 const SYSTEM_PROMPT = `Você é a "Conversa Amiga" do ConectaMente — um aplicativo brasileiro de apoio à saúde mental para estudantes.
 
@@ -29,21 +32,38 @@ export const Route = createFileRoute("/api/chat")({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         try {
-          const { messages } = (await request.json()) as { messages?: UIMessage[] };
-          if (!Array.isArray(messages)) {
+          const body = await request.json();
+          const messages = body.messages || [];
+
+          if (!Array.isArray(messages) || messages.length === 0) {
             return new Response("Mensagens inválidas", { status: 400 });
           }
 
-          const result = streamText({
-            model: google("gemini-1.5-flash-latest"),
-            system: SYSTEM_PROMPT,
-            messages: await convertToModelMessages(messages),
+          // Pega a última mensagem enviada pelo usuário
+          const lastUserMessage = [...messages].reverse().find((m: any) => m.role === "user");
+          const promptText = lastUserMessage
+            ? typeof lastUserMessage.content === "string"
+              ? lastUserMessage.content
+              : lastUserMessage.parts?.[0]?.text || ""
+            : "";
+
+          // Chamada direta via SDK oficial do Google
+          const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: promptText,
+            config: {
+              systemInstruction: SYSTEM_PROMPT,
+            },
           });
 
-          return result.toUIMessageStreamResponse({ originalMessages: messages });
-        } catch (e) {
+          const text = response.text || "Desculpe, não consegui processar sua resposta no momento.";
+
+          return new Response(JSON.stringify({ text }), {
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (e: any) {
           console.error("chat route error", e);
-          return new Response("Erro interno no servidor de chat", { status: 500 });
+          return new Response(JSON.stringify({ error: e.message || "Erro interno" }), { status: 500 });
         }
       },
     },
