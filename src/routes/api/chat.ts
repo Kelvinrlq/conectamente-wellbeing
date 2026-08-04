@@ -78,9 +78,18 @@ export const Route = createFileRoute("/api/chat")({
 
           const text = data.choices?.[0]?.message?.content || "Desculpe, não consegui processar sua resposta no momento.";
 
-          return new Response(JSON.stringify({ text }), {
+          // Enviamos um "Curinga" com todas as variações para o frontend encontrar!
+          return new Response(JSON.stringify({ 
+            text: text,
+            message: text,
+            response: text,
+            resposta: text,
+            content: text,
+            choices: data.choices // Caso o frontend espere o padrão OpenAI original
+          }), {
             headers: { "Content-Type": "application/json" },
           });
+          
         } catch (e: any) {
           console.error("chat route error", e);
           return new Response(
