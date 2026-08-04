@@ -20,7 +20,10 @@ Manter o Groq como provedor e reescrever a rota `/api/chat` usando o AI SDK, que
 ### Frontend — `src/routes/chat.tsx`
 Nenhuma mudança necessária: `useChat` + `DefaultChatTransport({ api: "/api/chat" })` já é o consumidor correto do formato de streaming.
 
+### Dependências — conflito de versões do AI SDK
+O projeto tem hoje duas cópias do pacote `ai`: a raiz na versão 7 e uma versão 6 aninhada dentro de `@ai-sdk/react`. Isso gera erros de tipo em `src/routes/chat.tsx` (os tipos `UIMessage`/`transport` de uma versão não são aceitos pela outra). Alinhar `@ai-sdk/react` com a versão do `ai` usada na raiz, para que exista apenas uma cópia.
+
 ## Verificação
-- Rodar o build para garantir que a rota compila.
+- Rodar o build para garantir que a rota compila e que os erros de tipo sumiram.
 - Testar o chat no preview enviando uma mensagem e confirmando que a resposta aparece em streaming.
 - Confirmar que a variável `GROQ_API_KEY` está configurada no projeto da Vercel (Settings > Environment Variables) e refazer o deploy.
