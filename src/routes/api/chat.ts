@@ -47,9 +47,9 @@ export const Route = createFileRoute("/api/chat")({
               : lastUserMessage.parts?.[0]?.text || ""
             : "";
 
-          // Alterado para gemini-1.5-flash que possui cota liberada na Free Tier
+          // Usando o modelo genérico gemini-1.5-flash com a versão mais estável
           const response = await ai.models.generateContent({
-            model: "gemini-1.5-flash",
+            model: "gemini-1.5-flash-002",
             contents: promptText,
             config: {
               systemInstruction: SYSTEM_PROMPT,
