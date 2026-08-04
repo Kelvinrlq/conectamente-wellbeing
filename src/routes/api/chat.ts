@@ -27,11 +27,11 @@ export const Route = createFileRoute("/api/chat")({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         try {
-          const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+          const apiKey = process.env.GROQ_API_KEY;
 
           if (!apiKey) {
             return new Response(
-              JSON.stringify({ error: "Chave de API (GEMINI_API_KEY) não configurada no servidor." }),
+              JSON.stringify({ error: "Chave GROQ_API_KEY não configurada na Vercel." }),
               { status: 500, headers: { "Content-Type": "application/json" } }
             );
           }
@@ -43,58 +43,44 @@ export const Route = createFileRoute("/api/chat")({
             return new Response(JSON.stringify({ error: "Mensagens inválidas" }), { status: 400 });
           }
 
-          // Pega a última mensagem enviada pelo usuário
-          const lastUserMessage = [...messages].reverse().find((m: any) => m.role === "user");
-          const promptText = lastUserMessage
-            ? typeof lastUserMessage.content === "string"
-              ? lastUserMessage.content
-              : lastUserMessage.parts?.[0]?.text || ""
-            : "";
+          // Formata as mensagens para a API Groq/OpenAI
+          const formattedMessages = [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...messages.map((m: any) => ({
+              role: m.role === "user" ? "user" : "assistant",
+              content: typeof m.content === "string" ? m.content : m.parts?.[0]?.text || "",
+            })),
+          ];
 
-          if (!promptText) {
-            return new Response(JSON.stringify({ error: "Texto da mensagem está vazio" }), { status: 400 });
+          const apiResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "llama-3.3-70b-versatile",
+              messages: formattedMessages,
+              temperature: 0.7,
+              max_tokens: 500,
+            }),
+          });
+
+          const data = await apiResponse.json();
+
+          if (!apiResponse.ok) {
+            console.error("Groq API error:", data);
+            return new Response(
+              JSON.stringify({ error: data.error?.message || "Erro na API Groq" }),
+              { status: apiResponse.status, headers: { "Content-Type": "application/json" } }
+            );
           }
 
-          // Modelos a serem testados em ordem de prioridade
-          const modelsToTry = ["gemini-2.0-flash", "gemini-1.5-flash"];
-          let lastErrorMessage = "";
+          const text = data.choices?.[0]?.message?.content || "Desculpe, não consegui processar sua resposta no momento.";
 
-          for (const model of modelsToTry) {
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-            const apiResponse = await fetch(endpoint, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                systemInstruction: {
-                  parts: [{ text: SYSTEM_PROMPT }],
-                },
-                contents: [
-                  {
-                    role: "user",
-                    parts: [{ text: promptText }],
-                  },
-                ],
-              }),
-            });
-
-            const data = await apiResponse.json();
-
-            if (apiResponse.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-              const text = data.candidates[0].content.parts[0].text;
-              return new Response(JSON.stringify({ text }), {
-                headers: { "Content-Type": "application/json" },
-              });
-            }
-
-            lastErrorMessage = data.error?.message || JSON.stringify(data);
-            console.error(`Erro ao tentar modelo ${model}:`, lastErrorMessage);
-          }
-
-          return new Response(
-            JSON.stringify({ error: `Falha na API Gemini: ${lastErrorMessage}` }),
-            { status: 500, headers: { "Content-Type": "application/json" } }
-          );
+          return new Response(JSON.stringify({ text }), {
+            headers: { "Content-Type": "application/json" },
+          });
         } catch (e: any) {
           console.error("chat route error", e);
           return new Response(
