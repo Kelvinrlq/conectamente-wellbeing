@@ -56,7 +56,7 @@ export const Route = createFileRoute("/api/chat")({
           const result = streamText({
             model: groq("llama-3.3-70b-versatile"),
             system: SYSTEM_PROMPT,
-            messages: convertToModelMessages(messages),
+            messages: await convertToModelMessages(messages),
             temperature: 0.7,
           });
 
