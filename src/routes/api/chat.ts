@@ -1,7 +1,7 @@
 import "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
-import { createLovableAiGatewayProvider } from "@/lib/ai-gateway";
+import { convertToModelMessages, streamText, type UIMessage, type LanguageModel } from "ai";
+import { google } from "@ai-sdk/google";
 
 const SYSTEM_PROMPT = `Você é a "Conversa Amiga" do ConectaMente — um aplicativo brasileiro de apoio à saúde mental para estudantes.
 
@@ -33,21 +33,19 @@ export const Route = createFileRoute("/api/chat")({
           if (!Array.isArray(messages)) {
             return new Response("Mensagens inválidas", { status: 400 });
           }
-          const key = process.env.LOVABLE_API_KEY;
-          if (!key) {
-            return new Response("LOVABLE_API_KEY ausente", { status: 500 });
-          }
-          const gateway = createLovableAiGatewayProvider(key);
-          const model = gateway("google/gemini-3-flash-preview");
+
+          const model = google("gemini-1.5-flash") as unknown as LanguageModel;
+
           const result = streamText({
             model,
             system: SYSTEM_PROMPT,
             messages: await convertToModelMessages(messages),
           });
+
           return result.toUIMessageStreamResponse({ originalMessages: messages });
         } catch (e) {
           console.error("chat route error", e);
-          return new Response("Erro interno", { status: 500 });
+          return new Response("Erro interno no servidor de chat", { status: 500 });
         }
       },
     },
