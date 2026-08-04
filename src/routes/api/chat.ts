@@ -47,9 +47,9 @@ export const Route = createFileRoute("/api/chat")({
               : lastUserMessage.parts?.[0]?.text || ""
             : "";
 
-          // Usando o modelo genérico gemini-1.5-flash com a versão mais estável
+          // Chamada usando o modelo padrão oficial do SDK
           const response = await ai.models.generateContent({
-            model: "gemini-1.5-flash-002",
+            model: "gemini-2.0-flash",
             contents: promptText,
             config: {
               systemInstruction: SYSTEM_PROMPT,
