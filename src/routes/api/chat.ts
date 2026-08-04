@@ -47,9 +47,9 @@ export const Route = createFileRoute("/api/chat")({
               : lastUserMessage.parts?.[0]?.text || ""
             : "";
 
-          // Modelo atualizado para o identificador ativo no @google/genai
+          // Alterado para gemini-1.5-flash que possui cota liberada na Free Tier
           const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
+            model: "gemini-1.5-flash",
             contents: promptText,
             config: {
               systemInstruction: SYSTEM_PROMPT,
