@@ -1,10 +1,5 @@
 import "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
-import { GoogleGenAI } from "@google/genai";
-
-// Inicialização oficial do SDK do Google Generative AI
-const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || "";
-const ai = new GoogleGenAI({ apiKey });
 
 const SYSTEM_PROMPT = `Você é a "Conversa Amiga" do ConectaMente — um aplicativo brasileiro de apoio à saúde mental para estudantes.
 
@@ -32,11 +27,20 @@ export const Route = createFileRoute("/api/chat")({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         try {
+          const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+
+          if (!apiKey) {
+            return new Response(
+              JSON.stringify({ error: "Chave de API (GEMINI_API_KEY) não configurada no servidor." }),
+              { status: 500, headers: { "Content-Type": "application/json" } }
+            );
+          }
+
           const body = await request.json();
           const messages = body.messages || [];
 
           if (!Array.isArray(messages) || messages.length === 0) {
-            return new Response("Mensagens inválidas", { status: 400 });
+            return new Response(JSON.stringify({ error: "Mensagens inválidas" }), { status: 400 });
           }
 
           // Pega a última mensagem enviada pelo usuário
@@ -47,23 +51,56 @@ export const Route = createFileRoute("/api/chat")({
               : lastUserMessage.parts?.[0]?.text || ""
             : "";
 
-          // Chamada usando o modelo padrão oficial do SDK
-          const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
-            contents: promptText,
-            config: {
-              systemInstruction: SYSTEM_PROMPT,
-            },
-          });
+          if (!promptText) {
+            return new Response(JSON.stringify({ error: "Texto da mensagem está vazio" }), { status: 400 });
+          }
 
-          const text = response.text || "Desculpe, não consegui processar sua resposta no momento.";
+          // Modelos a serem testados em ordem de prioridade
+          const modelsToTry = ["gemini-2.0-flash", "gemini-1.5-flash"];
+          let lastErrorMessage = "";
 
-          return new Response(JSON.stringify({ text }), {
-            headers: { "Content-Type": "application/json" },
-          });
+          for (const model of modelsToTry) {
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+            const apiResponse = await fetch(endpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                systemInstruction: {
+                  parts: [{ text: SYSTEM_PROMPT }],
+                },
+                contents: [
+                  {
+                    role: "user",
+                    parts: [{ text: promptText }],
+                  },
+                ],
+              }),
+            });
+
+            const data = await apiResponse.json();
+
+            if (apiResponse.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+              const text = data.candidates[0].content.parts[0].text;
+              return new Response(JSON.stringify({ text }), {
+                headers: { "Content-Type": "application/json" },
+              });
+            }
+
+            lastErrorMessage = data.error?.message || JSON.stringify(data);
+            console.error(`Erro ao tentar modelo ${model}:`, lastErrorMessage);
+          }
+
+          return new Response(
+            JSON.stringify({ error: `Falha na API Gemini: ${lastErrorMessage}` }),
+            { status: 500, headers: { "Content-Type": "application/json" } }
+          );
         } catch (e: any) {
           console.error("chat route error", e);
-          return new Response(JSON.stringify({ error: e.message || "Erro interno" }), { status: 500 });
+          return new Response(
+            JSON.stringify({ error: e.message || "Erro interno no servidor" }),
+            { status: 500, headers: { "Content-Type": "application/json" } }
+          );
         }
       },
     },
