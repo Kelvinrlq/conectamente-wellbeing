@@ -1,7 +1,12 @@
 import "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage, type LanguageModel } from "ai";
-import { google } from "@ai-sdk/google";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+
+// Inicializa a integração oficial do Google Gemini
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
+});
 
 const SYSTEM_PROMPT = `Você é a "Conversa Amiga" do ConectaMente — um aplicativo brasileiro de apoio à saúde mental para estudantes.
 
@@ -34,7 +39,8 @@ export const Route = createFileRoute("/api/chat")({
             return new Response("Mensagens inválidas", { status: 400 });
           }
 
-          const model = google("gemini-1.5-flash") as unknown as LanguageModel;
+          // Atualizado para usar o modelo oficial gemini-2.0-flash ou gemini-1.5-flash-latest
+          const model = google("gemini-2.0-flash") as unknown as LanguageModel;
 
           const result = streamText({
             model,
