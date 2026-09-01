@@ -71,7 +71,14 @@ export const Route = createFileRoute("/api/chat")({
             temperature: 0.7,
           });
 
-          const response = result.toUIMessageStreamResponse({ originalMessages: messages });
+          const response = result.toUIMessageStreamResponse({
+            originalMessages: messages,
+            onError: (error) => {
+              console.error("groq stream error", error);
+              const msg = error instanceof Error ? error.message : String(error);
+              return `Não consegui responder agora (Groq): ${msg}`;
+            },
+          });
           const headers = new Headers(response.headers);
           Object.entries(CORS_HEADERS).forEach(([key, value]) => headers.set(key, value));
 
