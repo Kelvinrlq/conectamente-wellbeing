@@ -69,6 +69,9 @@ export const Route = createFileRoute("/api/chat")({
             system: SYSTEM_PROMPT,
             messages: await convertToModelMessages(messages),
             temperature: 0.7,
+            providerOptions: {
+              groq: { reasoning_effort: "low" },
+            },
           });
 
           const response = result.toUIMessageStreamResponse({
