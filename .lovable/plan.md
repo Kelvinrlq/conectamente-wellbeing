@@ -1,71 +1,56 @@
-# Sincronizar Lovable → GitHub → Vercel (chat funcionando)
+# Painel administrador do ConectaMente
 
-## O que está acontecendo
+Área restrita, aberta com uma senha única, com gráficos de uso do app e gestão das playlists.
 
-Você editou e corrigiu o chat aqui no Lovable (incluindo a troca do modelo da Groq descontinuado), mas o seu repositório local no VS Code não tem essas mudanças. O `git push origin main` foi rejeitado porque o GitHub também tem commits que o seu VS Code não tem (provavelmente o README criado na criação do repositório).
+## Por que precisa de um "banco de dados"
 
-## Objetivo
+Hoje as playlists ficam escritas dentro do próprio app (arquivo fixo) e nada é registrado sobre o uso. Para o admin adicionar/remover músicas e todo mundo ver na hora, e para guardar os acessos e cliques, o app passa a usar o Lovable Cloud (banco de dados integrado, sem conta externa).
 
-Colocar a versão corrigida do Lovable no GitHub para que a Vercel faça o deploy automaticamente com o chat respondendo.
+## Entrada no painel
 
-## Passos
+- Nova página `/admin` com um campo de senha.
+- A senha fica guardada em segredo no servidor (nunca no código nem visível no navegador).
+- Após acertar, o navegador guarda um acesso seguro por 7 dias; há botão "Sair".
+- Sem senha, a página só mostra o formulário — nenhum dado do painel é carregado.
 
-### 1. Trazer o código atualizado do Lovable para o seu computador
+## Registro de uso
 
-Opção A — baixar o projeto do Lovable como ZIP e substituir a pasta local:
-- No Lovable, exportar/baixar o projeto atual.
-- Descompactar e substituir os arquivos na pasta `conectamente-wellbeing` do seu computador.
-- Depois rodar os comandos git abaixo.
+O app passa a registrar, de forma anônima (sem identificar a pessoa):
 
-Opção B — se o Lovable já estiver conectado ao mesmo repositório GitHub:
-- No VS Code, fazer `git pull origin main` para puxar as mudanças do Lovable.
-- Se der conflito, resolver mantendo os arquivos corrigidos do Lovable.
+- Visitas a cada tela: Início, Recursos, Apoio, Perfil, Reflexões, Pausa, Mapa, Player, Chat.
+- Cliques nos cards e botões principais do Início e Recursos.
+- Conversas iniciadas no chat e mensagens enviadas.
+- Qual playlist foi aberta/tocada.
 
-### 2. Resolver o conflito do Git e fazer o push
+Cada registro guarda apenas: tipo do evento, nome do item, data/hora.
 
-No terminal do VS Code, dentro da pasta do projeto:
+## O que o painel mostra
 
-```bash
-# Puxar o que existe no GitHub e mesclar com o seu local
-git pull origin main --allow-unrelated-histories
-```
+- Cartões de resumo: visitas totais, cliques, conversas de chat, playlists tocadas (últimos 7/30 dias).
+- Gráfico de barras: páginas mais visitadas.
+- Gráfico de barras: botões/cards mais clicados.
+- Gráfico de barras: playlists mais tocadas + total de conversas no chat.
+- Gráfico de linha: evolução dos acessos por dia.
+- Seletor de período: 7, 30 ou 90 dias.
 
-Se aparecer algum conflito, o VS Code vai mostrar. Resolva mantendo sempre a versão que veio do Lovable (que já tem o chat corrigido).
+## Gestão de playlists
 
-Depois:
+- Lista das músicas atuais agrupadas por categoria (Natureza, Foco, Sono, Meditações).
+- Adicionar: categoria, nome, link ou ID do vídeo do YouTube, descrição. O link é convertido para o ID automaticamente.
+- Remover e reordenar itens.
+- A tela do Player passa a ler essa lista do banco, então a mudança aparece para todos imediatamente; as músicas atuais entram como conteúdo inicial.
 
-```bash
-git add .
-git commit -m "atualiza chat com modelo Groq funcional"
-git push origin main
-```
+## Detalhes técnicos
 
-Se o GitHub tiver apenas um README inicial e você quiser sobrescrever tudo com o código do Lovable:
-
-```bash
-git push origin main --force
-```
-
-> Atenção: `--force` apaga o histórico remoto e coloca o seu local no lugar. Só use se o GitHub não tiver código importante.
-
-### 3. Verificar o deploy na Vercel
-
-- Assim que o push chegar no GitHub, a Vercel detecta e inicia um novo deploy sozinha.
-- Acompanhar em: Vercel Dashboard → Projeto → Deployments.
-
-### 4. Confirmar a variável de ambiente na Vercel
-
-A rota `/api/chat` precisa da chave `GROQ_API_KEY`.
-
-- Vercel Dashboard → Projeto → Settings → Environment Variables.
-- Verificar se existe `GROQ_API_KEY` com a sua chave da Groq.
-- Se não existir, adicionar e fazer um novo deploy (ou clicar em "Redeploy").
-
-### 5. Testar o chat no link público
-
-- Abrir o link da Vercel no celular/navegador.
-- Enviar uma mensagem no chat e confirmar que a resposta aparece em streaming.
-
-## Resultado esperado
-
-O link público da Vercel vai servir a versão corrigida do ConectaMente com o chat respondendo normalmente.
+- Ativar Lovable Cloud.
+- Tabelas: `playlists` (categoria, nome, video_id, descrição, ordem, criado_em) e `analytics_events` (tipo, nome, metadata, criado_em).
+  - `playlists`: SELECT público para `anon`/`authenticated`; escrita apenas via server function admin (service role) após validar a sessão.
+  - `analytics_events`: sem leitura pública; inserção feita por server function pública com validação de entrada (tipo/nome restritos por lista); leitura agregada apenas na sessão admin.
+  - GRANTs explícitos em ambas as tabelas.
+- Segredos: `ADMIN_PASSWORD` (informada pelo usuário no formulário seguro) e `SESSION_SECRET` (gerada automaticamente).
+- Sessão via `useSession` do TanStack Start (cookie httpOnly criptografado), comparação de senha com hash + `timingSafeEqual`.
+- Server functions em `src/lib/admin.functions.ts` (login, logout, métricas agregadas, CRUD de playlists) e `src/lib/analytics.functions.ts` (registro de evento, público e sem retorno de dados).
+- Registro de páginas por um hook no `__root.tsx` observando mudança de rota; cliques por chamadas pontuais nos componentes.
+- Gráficos com `recharts`.
+- `src/data/conteudo.ts` deixa de ser a fonte das playlists (vira apenas seed da migração); `src/routes/player.tsx` passa a carregar do banco.
+- `/admin` não aparece no menu inferior e recebe `noindex`.
