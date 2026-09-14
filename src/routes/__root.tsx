@@ -125,6 +125,13 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    rastrearPagina(pathname);
+  }, [pathname]);
+
+  const admin = pathname.startsWith("/admin");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -132,7 +139,7 @@ function RootComponent() {
         <div className="app-content">
           <Outlet />
         </div>
-        <BottomNav />
+        {admin ? null : <BottomNav />}
       </div>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
