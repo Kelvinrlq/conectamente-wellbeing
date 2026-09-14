@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
 import { Brain, Heart, Music, BookOpen, Sparkles, ArrowRight } from "lucide-react";
 import { meditacoesDestaque, reflexoesDoDia } from "@/data/conteudo";
+import { rastrear } from "@/lib/track";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -77,6 +78,7 @@ function Index() {
               <Link
                 key={t.title}
                 to={t.to}
+                onClick={() => rastrear("clique", t.title)}
                 className={`${t.klass} group flex flex-col gap-3 rounded-2xl p-4 shadow-soft transition-transform active:scale-[0.98]`}
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/30 backdrop-blur">
@@ -107,6 +109,7 @@ function Index() {
             <Link
               to="/player"
               key={m.titulo}
+              onClick={() => rastrear("clique", m.titulo)}
               className="snap-start shrink-0 w-[220px] rounded-2xl border border-border bg-card p-4 shadow-soft"
             >
               <span className="inline-block rounded-full bg-aqua/40 px-2 py-0.5 text-[10px] font-semibold text-aqua-foreground">

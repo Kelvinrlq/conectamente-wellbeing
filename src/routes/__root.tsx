@@ -4,11 +4,14 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { BottomNav } from "@/components/bottom-nav";
 import { Toaster } from "@/components/ui/sonner";
+import { rastrearPagina } from "@/lib/track";
 
 import appCss from "../styles.css?url";
 
@@ -122,6 +125,13 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    rastrearPagina(pathname);
+  }, [pathname]);
+
+  const admin = pathname.startsWith("/admin");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -129,7 +139,7 @@ function RootComponent() {
         <div className="app-content">
           <Outlet />
         </div>
-        <BottomNav />
+        {admin ? null : <BottomNav />}
       </div>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>

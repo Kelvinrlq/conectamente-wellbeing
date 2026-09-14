@@ -22,6 +22,7 @@ import {
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { ArrowLeft, ShieldCheck, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { rastrear } from "@/lib/track";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -131,6 +132,7 @@ function ChatRoute() {
           onSubmit={async (msg) => {
             const text = msg.text.trim();
             if (!text || isLoading) return;
+            rastrear("chat", "Mensagem enviada");
             await sendMessage({ text });
           }}
         >
