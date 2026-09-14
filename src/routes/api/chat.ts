@@ -64,10 +64,19 @@ export const Route = createFileRoute("/api/chat")({
             headers: { Authorization: `Bearer ${apiKey}` },
           });
 
+          // A Groq recusa receber "reasoning" de volta no histórico —
+          // mantemos apenas os textos de usuário e assistente.
+          const limpas = messages
+            .map((m) => ({
+              ...m,
+              parts: (m.parts ?? []).filter((p) => p.type === "text"),
+            }))
+            .filter((m) => m.parts.length > 0) as UIMessage[];
+
           const result = streamText({
             model: groq("openai/gpt-oss-120b"),
             system: SYSTEM_PROMPT,
-            messages: await convertToModelMessages(messages),
+            messages: await convertToModelMessages(limpas),
             temperature: 0.7,
             providerOptions: {
               groq: { reasoning_effort: "low" },
@@ -75,6 +84,7 @@ export const Route = createFileRoute("/api/chat")({
           });
 
           const response = result.toUIMessageStreamResponse({
+            sendReasoning: false,
             originalMessages: messages,
             onError: (error) => {
               console.error("groq stream error", error);
