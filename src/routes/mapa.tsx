@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, MapPin, Phone, ExternalLink } from "lucide-react";
+import { rastrear } from "@/lib/track";
 import {
   filtros,
   locaisApoio,
@@ -52,7 +53,10 @@ function Mapa() {
               <button
                 key={opt.id}
                 type="button"
-                onClick={() => setF(opt.id)}
+                onClick={() => {
+                  setF(opt.id);
+                  rastrear("clique", `Mapa · Filtro ${opt.label}`);
+                }}
                 className={`shrink-0 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"
@@ -98,6 +102,7 @@ function Mapa() {
                   {l.telefone ? (
                     <a
                       href={`tel:${l.telefone.replace(/\D/g, "")}`}
+                      onClick={() => rastrear("clique", `Mapa · Ligar ${l.nome}`)}
                       className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground"
                     >
                       <Phone className="h-3 w-3" /> {l.telefone}
@@ -110,6 +115,7 @@ function Mapa() {
                       )}`}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={() => rastrear("clique", `Mapa · Rota ${l.nome}`)}
                       className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-semibold text-foreground"
                     >
                       <ExternalLink className="h-3 w-3" /> Google Maps
