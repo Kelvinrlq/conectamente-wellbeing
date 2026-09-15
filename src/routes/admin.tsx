@@ -9,7 +9,9 @@ import {
   adminListarPlaylists,
   adminAdicionarPlaylist,
   adminRemoverPlaylist,
+  exportarEventos,
   type Metricas,
+  type Linha,
   type PlaylistAdmin,
 } from "@/lib/admin.functions";
 import { AppHeader } from "@/components/app-header";
