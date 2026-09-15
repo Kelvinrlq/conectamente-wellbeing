@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
 import { BookOpen, Music, Timer, Sparkles, ArrowRight } from "lucide-react";
+import { rastrear } from "@/lib/track";
 
 export const Route = createFileRoute("/recursos")({
   head: () => ({
@@ -58,6 +59,7 @@ function Recursos() {
             <Link
               key={it.to}
               to={it.to}
+              onClick={() => rastrear("clique", `Recursos · ${it.title}`)}
               className={`${it.klass} flex items-center gap-4 rounded-2xl p-4 shadow-soft active:scale-[0.99] transition-transform`}
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/35 backdrop-blur">
