@@ -47,12 +47,24 @@ export const adminLogout = createServerFn({ method: "POST" }).handler(async () =
   return { ok: true as const };
 });
 
+export type Linha = { nome: string; total: number; pct: number };
+
 export type Metricas = {
   resumo: { paginas: number; cliques: number; chats: number; playlists: number };
   porPagina: { nome: string; total: number }[];
   porClique: { nome: string; total: number }[];
   porPlaylist: { nome: string; total: number }[];
   porDia: { dia: string; total: number }[];
+  detalhe: {
+    paginas: Linha[];
+    cliques: Linha[];
+    playlists: Linha[];
+    conversas: number;
+    mensagens: number;
+    totalEventos: number;
+  };
+  porHora: { hora: string; total: number }[];
+  ultimos: { tipo: string; nome: string; created_at: string }[];
 };
 
 function contar(rows: { nome: string }[]) {
@@ -62,6 +74,15 @@ function contar(rows: { nome: string }[]) {
     .map(([nome, total]) => ({ nome, total }))
     .sort((a, b) => b.total - a.total)
     .slice(0, 12);
+}
+
+function ranking(rows: { nome: string }[]): Linha[] {
+  const mapa = new Map<string, number>();
+  for (const r of rows) mapa.set(r.nome, (mapa.get(r.nome) ?? 0) + 1);
+  const total = rows.length || 1;
+  return [...mapa.entries()]
+    .map(([nome, qtd]) => ({ nome, total: qtd, pct: Math.round((qtd / total) * 100) }))
+    .sort((a, b) => b.total - a.total);
 }
 
 export const obterMetricas = createServerFn({ method: "POST" })
