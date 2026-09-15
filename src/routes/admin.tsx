@@ -56,6 +56,7 @@ function Admin() {
   const listar = useServerFn(adminListarPlaylists);
   const adicionar = useServerFn(adminAdicionarPlaylist);
   const remover = useServerFn(adminRemoverPlaylist);
+  const exportar = useServerFn(exportarEventos);
 
   const [carregando, setCarregando] = useState(true);
   const [liberado, setLiberado] = useState(false);
