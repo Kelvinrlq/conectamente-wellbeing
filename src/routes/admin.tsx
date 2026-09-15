@@ -9,7 +9,9 @@ import {
   adminListarPlaylists,
   adminAdicionarPlaylist,
   adminRemoverPlaylist,
+  exportarEventos,
   type Metricas,
+  type Linha,
   type PlaylistAdmin,
 } from "@/lib/admin.functions";
 import { AppHeader } from "@/components/app-header";
@@ -54,6 +56,7 @@ function Admin() {
   const listar = useServerFn(adminListarPlaylists);
   const adicionar = useServerFn(adminAdicionarPlaylist);
   const remover = useServerFn(adminRemoverPlaylist);
+  const exportar = useServerFn(exportarEventos);
 
   const [carregando, setCarregando] = useState(true);
   const [liberado, setLiberado] = useState(false);

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
 import { MessageCircle, MapPin, Phone, ArrowRight } from "lucide-react";
+import { rastrear } from "@/lib/track";
 
 export const Route = createFileRoute("/apoio")({
   head: () => ({
@@ -31,6 +32,7 @@ function Apoio() {
           </p>
           <a
             href="tel:188"
+            onClick={() => rastrear("clique", "Apoio · Ligar CVV 188")}
             className="mt-3 inline-flex items-center gap-2 rounded-full bg-destructive px-4 py-2 text-xs font-semibold text-destructive-foreground"
           >
             <Phone className="h-3.5 w-3.5" /> Ligar para o CVV (188)
@@ -41,6 +43,7 @@ function Apoio() {
       <section className="px-5 pt-4 space-y-3">
         <Link
           to="/chat"
+          onClick={() => rastrear("clique", "Apoio · Conversa Amiga")}
           className="tile-primary flex items-center gap-4 rounded-2xl p-4 shadow-soft active:scale-[0.99] transition-transform"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/30 backdrop-blur">
@@ -55,6 +58,7 @@ function Apoio() {
 
         <Link
           to="/mapa"
+          onClick={() => rastrear("clique", "Apoio · Mapa de Apoio")}
           className="tile-aqua flex items-center gap-4 rounded-2xl p-4 shadow-soft active:scale-[0.99] transition-transform"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/35 backdrop-blur">
@@ -79,6 +83,7 @@ function Apoio() {
             <a
               key={c.num}
               href={`tel:${c.num}`}
+              onClick={() => rastrear("clique", `Apoio · Ligar ${c.label}`)}
               className="flex items-center justify-between rounded-2xl border border-border bg-card px-4 py-3"
             >
               <span className="text-sm text-card-foreground">{c.label}</span>

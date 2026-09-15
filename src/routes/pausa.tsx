@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppHeader } from "@/components/app-header";
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause, RotateCcw, ArrowLeft } from "lucide-react";
+import { rastrear } from "@/lib/track";
 
 export const Route = createFileRoute("/pausa")({
   head: () => ({
@@ -82,7 +83,10 @@ function Pausa() {
           <div className="mt-6 flex items-center justify-center gap-3">
             <button
               type="button"
-              onClick={() => setRunning((r) => !r)}
+              onClick={() => {
+                rastrear("clique", running ? "Pausa · Pausar cronômetro" : "Pausa · Iniciar cronômetro");
+                setRunning((r) => !r);
+              }}
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft active:scale-95"
             >
               {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -91,6 +95,7 @@ function Pausa() {
             <button
               type="button"
               onClick={() => {
+                rastrear("clique", "Pausa · Reiniciar cronômetro");
                 setRunning(false);
                 setSecs(TOTAL);
               }}

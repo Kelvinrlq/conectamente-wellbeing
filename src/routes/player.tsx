@@ -65,6 +65,7 @@ function Player() {
                 onClick={() => {
                   setCat(t.id);
                   setIndice(0);
+                  rastrear("clique", `Player · Categoria ${t.label}`);
                 }}
                 className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors ${
                   active

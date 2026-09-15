@@ -47,12 +47,24 @@ export const adminLogout = createServerFn({ method: "POST" }).handler(async () =
   return { ok: true as const };
 });
 
+export type Linha = { nome: string; total: number; pct: number };
+
 export type Metricas = {
   resumo: { paginas: number; cliques: number; chats: number; playlists: number };
   porPagina: { nome: string; total: number }[];
   porClique: { nome: string; total: number }[];
   porPlaylist: { nome: string; total: number }[];
   porDia: { dia: string; total: number }[];
+  detalhe: {
+    paginas: Linha[];
+    cliques: Linha[];
+    playlists: Linha[];
+    conversas: number;
+    mensagens: number;
+    totalEventos: number;
+  };
+  porHora: { hora: string; total: number }[];
+  ultimos: { tipo: string; nome: string; created_at: string }[];
 };
 
 function contar(rows: { nome: string }[]) {
@@ -62,6 +74,15 @@ function contar(rows: { nome: string }[]) {
     .map(([nome, total]) => ({ nome, total }))
     .sort((a, b) => b.total - a.total)
     .slice(0, 12);
+}
+
+function ranking(rows: { nome: string }[]): Linha[] {
+  const mapa = new Map<string, number>();
+  for (const r of rows) mapa.set(r.nome, (mapa.get(r.nome) ?? 0) + 1);
+  const total = rows.length || 1;
+  return [...mapa.entries()]
+    .map(([nome, qtd]) => ({ nome, total: qtd, pct: Math.round((qtd / total) * 100) }))
+    .sort((a, b) => b.total - a.total);
 }
 
 export const obterMetricas = createServerFn({ method: "POST" })
@@ -100,6 +121,16 @@ export const obterMetricas = createServerFn({ method: "POST" })
       dias.push({ dia: d.slice(8, 10) + "/" + d.slice(5, 7), total: porDiaMapa.get(d) ?? 0 });
     }
 
+    const horaMapa = new Map<number, number>();
+    for (const e of eventos) {
+      const h = new Date(new Date(e.created_at).getTime() - 4 * 60 * 60 * 1000).getUTCHours();
+      horaMapa.set(h, (horaMapa.get(h) ?? 0) + 1);
+    }
+    const porHora = Array.from({ length: 24 }, (_, h) => ({
+      hora: String(h).padStart(2, "0") + "h",
+      total: horaMapa.get(h) ?? 0,
+    }));
+
     return {
       resumo: {
         paginas: paginas.length,
@@ -111,7 +142,35 @@ export const obterMetricas = createServerFn({ method: "POST" })
       porClique: contar(cliques),
       porPlaylist: contar(musicas),
       porDia: dias,
+      detalhe: {
+        paginas: ranking(paginas),
+        cliques: ranking(cliques),
+        playlists: ranking(musicas),
+        conversas: chats.filter((e) => e.nome === "Conversa iniciada").length,
+        mensagens: chats.filter((e) => e.nome !== "Conversa iniciada").length,
+        totalEventos: eventos.length,
+      },
+      porHora,
+      ultimos: eventos.slice(0, 50),
     };
+  });
+
+export const exportarEventos = createServerFn({ method: "POST" })
+  .inputValidator((data: { dias: number }) => ({
+    dias: [7, 30, 90].includes(Number(data.dias)) ? Number(data.dias) : 7,
+  }))
+  .handler(async ({ data }) => {
+    await exigirAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const desde = new Date(Date.now() - data.dias * 24 * 60 * 60 * 1000).toISOString();
+    const { data: rows, error } = await supabaseAdmin
+      .from("analytics_events")
+      .select("tipo, nome, created_at")
+      .gte("created_at", desde)
+      .order("created_at", { ascending: false })
+      .limit(50000);
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as { tipo: string; nome: string; created_at: string }[];
   });
 
 export type PlaylistAdmin = {

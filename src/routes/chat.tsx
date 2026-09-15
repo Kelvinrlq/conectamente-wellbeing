@@ -132,6 +132,7 @@ function ChatRoute() {
           onSubmit={async (msg) => {
             const text = msg.text.trim();
             if (!text || isLoading) return;
+            if (messages.length === 0) rastrear("chat", "Conversa iniciada");
             rastrear("chat", "Mensagem enviada");
             await sendMessage({ text });
           }}

@@ -8,6 +8,7 @@ import {
   mensagensDePaz,
 } from "@/data/conteudo";
 import { Sparkles, Heart, Wind, Timer, ArrowRight, ArrowLeft } from "lucide-react";
+import { rastrear } from "@/lib/track";
 
 export const Route = createFileRoute("/reflexoes")({
   head: () => ({
@@ -53,6 +54,7 @@ function Reflexoes() {
       <section className="px-5 pt-3">
         <Link
           to="/pausa"
+          onClick={() => rastrear("clique", "Reflexões · Pausa e Reflexão")}
           className="tile-aqua flex items-center gap-4 rounded-2xl p-4 shadow-soft active:scale-[0.99]"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/35 backdrop-blur">
@@ -69,7 +71,10 @@ function Reflexoes() {
       <section className="px-5 pt-4 grid grid-cols-2 gap-3">
         <button
           type="button"
-          onClick={() => setAba("forca")}
+          onClick={() => {
+            setAba("forca");
+            rastrear("clique", "Reflexões · Mensagens de Força");
+          }}
           className="tile-warm rounded-2xl p-4 text-left shadow-soft active:scale-[0.98]"
         >
           <Heart className="h-5 w-5" />
@@ -78,7 +83,10 @@ function Reflexoes() {
         </button>
         <button
           type="button"
-          onClick={() => setAba("paz")}
+          onClick={() => {
+            setAba("paz");
+            rastrear("clique", "Reflexões · Mensagens de Paz");
+          }}
           className="tile-calm rounded-2xl p-4 text-left shadow-soft active:scale-[0.98]"
         >
           <Wind className="h-5 w-5" />

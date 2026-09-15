@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { Home, BookOpen, HeartHandshake, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { rastrear } from "@/lib/track";
 
 type NavItem = { to: "/" | "/recursos" | "/apoio" | "/perfil"; label: string; icon: typeof Home; exact?: boolean };
 const items: NavItem[] = [
@@ -25,6 +26,7 @@ export function BottomNav() {
             <li key={it.to}>
               <Link
                 to={it.to}
+                onClick={() => rastrear("clique", `Menu · ${it.label}`)}
                 className={cn(
                   "flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors",
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground",
