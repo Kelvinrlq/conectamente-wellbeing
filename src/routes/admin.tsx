@@ -78,12 +78,24 @@ function Admin() {
 
   const carregarDados = useCallback(
     async (periodo: number) => {
-      const [m, p] = await Promise.all([
-        metricasFn({ data: { dias: periodo } }),
-        listar(),
-      ]);
-      setMetricas(m);
-      setPlaylists(p);
+      try {
+        const [m, p] = await Promise.all([
+          metricasFn({ data: { dias: periodo } }),
+          listar(),
+        ]);
+        setMetricas(m);
+        setPlaylists(p);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "";
+        if (msg.includes("NAO_AUTORIZADO")) {
+          setLiberado(false);
+          setMetricas(null);
+          setPlaylists([]);
+          toast.error("Sessão expirada. Entre novamente.");
+          return;
+        }
+        toast.error("Não foi possível carregar os dados");
+      }
     },
     [metricasFn, listar],
   );
@@ -94,6 +106,7 @@ function Admin() {
         setLiberado(s.unlocked);
         if (s.unlocked) await carregarDados(7);
       })
+      .catch(() => setLiberado(false))
       .finally(() => setCarregando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
