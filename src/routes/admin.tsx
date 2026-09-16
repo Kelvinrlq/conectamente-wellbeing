@@ -16,7 +16,16 @@ import {
 } from "@/lib/admin.functions";
 import { AppHeader } from "@/components/app-header";
 import { toast } from "sonner";
-import { Lock, LogOut, Trash2, BarChart3, MousePointerClick, MessageCircle, Music } from "lucide-react";
+import {
+  Lock,
+  LogOut,
+  Trash2,
+  BarChart3,
+  MousePointerClick,
+  MessageCircle,
+  Music,
+  Download,
+} from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -125,6 +134,24 @@ function Admin() {
       toast.error(err instanceof Error ? err.message : "Não foi possível adicionar");
     } finally {
       setSalvando(false);
+    }
+  }
+
+  async function baixarCsv() {
+    try {
+      const linhas = await exportar({ data: { dias } });
+      const csv = [
+        "tipo;nome;data",
+        ...linhas.map((l) => `${l.tipo};"${l.nome.replace(/"/g, "'")}";${l.created_at}`),
+      ].join("\n");
+      const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `conectamente-dados-${dias}dias.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Não foi possível baixar os dados");
     }
   }
 
@@ -239,6 +266,76 @@ function Admin() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
+          </section>
+
+          <section className="px-5 pt-6">
+            <h2 className="mb-2 text-sm font-bold text-foreground">Horários de maior uso</h2>
+            <div className="h-48 rounded-2xl border border-border bg-card p-3">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={metricas.porHora}>
+                  <XAxis dataKey="hora" fontSize={9} interval={2} />
+                  <YAxis allowDecimals={false} fontSize={10} width={24} />
+                  <Tooltip />
+                  <Bar dataKey="total" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+
+          <section className="px-5 pt-8">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-foreground">Dados e estatísticas</h2>
+              <button
+                type="button"
+                onClick={baixarCsv}
+                className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-foreground"
+              >
+                <Download className="h-3.5 w-3.5" /> Baixar planilha
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {metricas.detalhe.totalEventos} registros nos últimos {dias} dias.
+            </p>
+
+            <Tabela titulo="Páginas visitadas" linhas={metricas.detalhe.paginas} />
+            <Tabela titulo="Botões e cards clicados" linhas={metricas.detalhe.cliques} />
+            <Tabela titulo="Músicas tocadas" linhas={metricas.detalhe.playlists} />
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <p className="text-2xl font-bold text-card-foreground">
+                  {metricas.detalhe.conversas}
+                </p>
+                <p className="text-xs text-muted-foreground">Conversas iniciadas no chat</p>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <p className="text-2xl font-bold text-card-foreground">
+                  {metricas.detalhe.mensagens}
+                </p>
+                <p className="text-xs text-muted-foreground">Mensagens enviadas</p>
+              </div>
+            </div>
+
+            <h3 className="mb-1.5 mt-5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+              Últimas ações
+            </h3>
+            {metricas.ultimos.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Ainda sem registros neste período.</p>
+            ) : (
+              <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+                {metricas.ultimos.map((e, i) => (
+                  <li key={i} className="flex items-center justify-between gap-3 px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-semibold text-card-foreground">{e.nome}</p>
+                      <p className="text-[11px] text-muted-foreground">{rotuloTipo(e.tipo)}</p>
+                    </div>
+                    <span className="shrink-0 text-[11px] text-muted-foreground">
+                      {formatarData(e.created_at)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         </>
       ) : null}
@@ -367,5 +464,56 @@ function Grafico({ titulo, dados }: { titulo: string; dados: { nome: string; tot
         )}
       </div>
     </section>
+  );
+}
+
+const ROTULOS: Record<string, string> = {
+  pagina: "Visita de página",
+  clique: "Clique",
+  chat: "Chat",
+  playlist: "Música",
+};
+
+function rotuloTipo(tipo: string) {
+  return ROTULOS[tipo] ?? tipo;
+}
+
+function formatarData(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/Campo_Grande",
+  });
+}
+
+function Tabela({ titulo, linhas }: { titulo: string; linhas: Linha[] }) {
+  return (
+    <div className="mt-4">
+      <h3 className="mb-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        {titulo}
+      </h3>
+      {linhas.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Ainda sem registros neste período.</p>
+      ) : (
+        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+          {linhas.map((l) => (
+            <li key={l.nome} className="px-3 py-2">
+              <div className="flex items-center justify-between gap-3">
+                <span className="truncate text-xs font-semibold text-card-foreground">{l.nome}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {l.total} · {l.pct}%
+                </span>
+              </div>
+              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                <div className="h-full bg-primary" style={{ width: `${l.pct}%` }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
