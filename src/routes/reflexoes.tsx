@@ -34,20 +34,20 @@ function Reflexoes() {
     <div>
       <AppHeader subtitle="Central de Reflexões" />
 
-      <section className="px-5 pt-2">
-        <div className="tile-primary rounded-2xl p-5 shadow-soft">
+      <section className="px-5 pt-5">
+        <div className="rounded-xl bg-primary p-5 text-primary-foreground shadow-soft">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
-            <span className="text-[11px] uppercase tracking-wider opacity-90">Reflexão do dia</span>
+            <span className="text-sm font-semibold">Reflexão do dia</span>
           </div>
           <p className="mt-2 text-base font-semibold leading-snug">{reflexao}</p>
         </div>
       </section>
 
       <section className="px-5 pt-3">
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Conselho do dia</p>
-          <p className="mt-1 text-sm text-card-foreground">{conselho}</p>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <p className="text-sm font-semibold text-muted-foreground">Conselho do dia</p>
+          <p className="mt-2 text-base leading-relaxed text-card-foreground">{conselho}</p>
         </div>
       </section>
 
@@ -55,31 +55,30 @@ function Reflexoes() {
         <Link
           to="/pausa"
           onClick={() => rastrear("clique", "Reflexões · Pausa e Reflexão")}
-          className="tile-aqua flex items-center gap-4 rounded-2xl p-4 shadow-soft active:scale-[0.99]"
+          className="grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-aqua/50 bg-card p-4 shadow-soft hover:bg-aqua/10"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/35 backdrop-blur">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-aqua/25 text-aqua-foreground">
             <Timer className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-bold">Pausa e Reflexão</h3>
-            <p className="text-xs opacity-90">3 minutos guiados de respiração consciente.</p>
+            <h3 className="text-base font-bold text-card-foreground">Pausa e Reflexão</h3>
+            <p className="mt-1 text-sm text-muted-foreground">3 minutos guiados de respiração consciente.</p>
           </div>
           <ArrowRight className="h-5 w-5 opacity-80" />
         </Link>
       </section>
 
-      <section className="px-5 pt-4 grid grid-cols-2 gap-3">
+      <section className="space-y-3 px-5 pt-5">
         <button
           type="button"
           onClick={() => {
             setAba("forca");
             rastrear("clique", "Reflexões · Mensagens de Força");
           }}
-          className="tile-warm rounded-2xl p-4 text-left shadow-soft active:scale-[0.98]"
+          className="grid min-h-20 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-xl border border-warm/30 bg-card p-4 text-left shadow-soft hover:bg-warm/10"
         >
-          <Heart className="h-5 w-5" />
-          <h3 className="mt-2 text-sm font-bold">Mensagens de Força</h3>
-          <p className="text-xs opacity-90">Coragem para seguir.</p>
+          <Heart className="h-6 w-6 text-warm-foreground" />
+          <span><span className="block text-base font-bold text-card-foreground">Mensagens de Força</span><span className="mt-1 block text-sm text-muted-foreground">Coragem para seguir.</span></span>
         </button>
         <button
           type="button"
@@ -87,11 +86,10 @@ function Reflexoes() {
             setAba("paz");
             rastrear("clique", "Reflexões · Mensagens de Paz");
           }}
-          className="tile-calm rounded-2xl p-4 text-left shadow-soft active:scale-[0.98]"
+          className="grid min-h-20 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-xl border border-aqua/40 bg-card p-4 text-left shadow-soft hover:bg-aqua/10"
         >
-          <Wind className="h-5 w-5" />
-          <h3 className="mt-2 text-sm font-bold">Mensagens de Paz</h3>
-          <p className="text-xs opacity-90">Para respirar fundo.</p>
+          <Wind className="h-6 w-6 text-aqua-foreground" />
+          <span><span className="block text-base font-bold text-card-foreground">Mensagens de Paz</span><span className="mt-1 block text-sm text-muted-foreground">Para respirar fundo.</span></span>
         </button>
       </section>
 
@@ -104,14 +102,14 @@ function Reflexoes() {
             <button
               type="button"
               onClick={() => setAba(null)}
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground"
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-muted-foreground"
             >
               <ArrowLeft className="h-3 w-3" /> Voltar
             </button>
           </div>
           <div className="space-y-2">
             {(aba === "forca" ? mensagensDeForca : mensagensDePaz).map((m) => (
-              <div key={m} className="rounded-2xl border border-border bg-card p-4 text-sm text-card-foreground">
+              <div key={m} className="rounded-xl border border-border bg-card p-4 text-base leading-relaxed text-card-foreground">
                 {m}
               </div>
             ))}

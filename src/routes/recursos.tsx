@@ -44,15 +44,16 @@ function Recursos() {
   return (
     <div>
       <AppHeader subtitle="Recursos para o bem-estar" />
-      <section className="px-5 pt-2">
-        <div className="rounded-2xl bg-warm/25 p-4">
+      <section className="px-5 pt-5">
+        <div className="rounded-xl border border-warm/30 bg-warm/10 p-5">
           <Sparkles className="h-4 w-4 text-warm-foreground" />
-          <p className="mt-2 text-sm font-medium text-warm-foreground">
+          <p className="mt-2 text-base font-medium leading-relaxed text-foreground">
             Pequenas pausas, grandes diferenças. Escolha o que combina com o seu momento agora.
           </p>
         </div>
       </section>
-      <section className="px-5 pt-4 space-y-3">
+      <section className="space-y-3 px-5 pt-6">
+        <h2 className="text-lg font-bold text-foreground">Escolha um recurso</h2>
         {itens.map((it) => {
           const Icon = it.icon;
           return (
@@ -60,16 +61,16 @@ function Recursos() {
               key={it.to}
               to={it.to}
               onClick={() => rastrear("clique", `Recursos · ${it.title}`)}
-              className={`${it.klass} flex items-center gap-4 rounded-2xl p-4 shadow-soft active:scale-[0.99] transition-transform`}
+              className="grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-soft transition-colors hover:bg-muted"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/35 backdrop-blur">
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${it.klass}`}>
                 <Icon className="h-6 w-6" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-bold">{it.title}</h3>
-                <p className="text-xs opacity-90">{it.desc}</p>
+              <div className="min-w-0">
+                <h3 className="text-base font-bold text-card-foreground">{it.title}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{it.desc}</p>
               </div>
-              <ArrowRight className="h-5 w-5 opacity-80" />
+              <ArrowRight className="h-5 w-5 shrink-0 text-primary" />
             </Link>
           );
         })}

@@ -47,7 +47,7 @@ function Player() {
   return (
     <div>
       <div className="px-5 pt-6 pb-2">
-        <Link to="/recursos" className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+        <Link to="/recursos" className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-muted-foreground">
           <ArrowLeft className="h-3 w-3" /> Recursos
         </Link>
       </div>
@@ -67,7 +67,7 @@ function Player() {
                   setIndice(0);
                   rastrear("clique", `Player · Categoria ${t.label}`);
                 }}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors ${
+                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
                   active
                     ? "bg-primary text-primary-foreground"
                     : "border border-border bg-card text-muted-foreground"
@@ -89,7 +89,7 @@ function Player() {
                 key={p.id}
                 type="button"
                 onClick={() => setIndice(i)}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold ${
+                 className={`min-h-11 shrink-0 rounded-lg px-4 py-2 text-sm font-semibold ${
                   i === indice
                     ? "bg-aqua text-aqua-foreground"
                     : "border border-border bg-card text-muted-foreground"
@@ -104,10 +104,10 @@ function Player() {
 
       <section className="px-5 pt-3">
         {playlist ? (
-          <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-            <h3 className="text-sm font-bold text-card-foreground">{playlist.nome}</h3>
+          <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
+            <h3 className="text-lg font-bold text-card-foreground">{playlist.nome}</h3>
             {playlist.descricao ? (
-              <p className="mt-0.5 text-xs text-muted-foreground">{playlist.descricao}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{playlist.descricao}</p>
             ) : null}
             <div
               className="mt-3 aspect-video overflow-hidden rounded-xl bg-black"

@@ -136,9 +136,9 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="app-shell">
-        <div className="app-content">
+        <main className="app-content">
           <Outlet />
-        </div>
+        </main>
         {admin ? null : <BottomNav />}
       </div>
       <Toaster position="top-center" richColors />

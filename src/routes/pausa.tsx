@@ -52,14 +52,14 @@ function Pausa() {
   return (
     <div>
       <div className="px-5 pt-6 pb-2">
-        <Link to="/reflexoes" className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+        <Link to="/reflexoes" className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-muted-foreground">
           <ArrowLeft className="h-3 w-3" /> Reflexões
         </Link>
       </div>
       <AppHeader subtitle="Pausa e Reflexão" />
 
       <section className="px-5 pt-2">
-        <div className="rounded-3xl bg-card border border-border p-6 shadow-soft text-center">
+        <div className="rounded-xl border border-border bg-card p-6 text-center shadow-soft">
           <div className="relative mx-auto h-56 w-56">
             <div className="absolute inset-0 rounded-full bg-aqua/20" />
             <div
@@ -67,7 +67,7 @@ function Pausa() {
               style={{ animationPlayState: running ? "running" : "paused" }}
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
+              <span className="text-sm font-semibold text-muted-foreground">
                 {running ? phase : "Pronto?"}
               </span>
               <span className="mt-1 text-4xl font-bold text-foreground tabular-nums">
@@ -106,7 +106,7 @@ function Pausa() {
             </button>
           </div>
 
-          <p className="mt-4 text-xs text-muted-foreground">
+          <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
             Respire no ritmo da bolha: inspire enquanto cresce, expire enquanto encolhe.
           </p>
         </div>
