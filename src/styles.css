@@ -53,10 +53,10 @@
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 0.75rem;
 
-  --background: oklch(0.99 0.005 220);
-  --foreground: oklch(0.22 0.04 240);
+  --background: oklch(0.985 0.006 220);
+  --foreground: oklch(0.20 0.035 240);
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.22 0.04 240);
@@ -80,15 +80,15 @@
   --secondary: oklch(0.96 0.015 220);
   --secondary-foreground: oklch(0.25 0.04 240);
   --muted: oklch(0.96 0.012 220);
-  --muted-foreground: oklch(0.50 0.03 240);
+  --muted-foreground: oklch(0.43 0.03 240);
   --accent: oklch(0.94 0.04 190);
   --accent-foreground: oklch(0.25 0.05 220);
 
   --destructive: oklch(0.60 0.22 27);
   --destructive-foreground: oklch(0.99 0.005 220);
 
-  --border: oklch(0.91 0.015 220);
-  --input: oklch(0.93 0.015 220);
+  --border: oklch(0.86 0.02 220);
+  --input: oklch(0.88 0.02 220);
   --ring: oklch(0.55 0.14 245);
 
   --chart-1: oklch(0.55 0.14 245);
@@ -153,6 +153,12 @@
     color: var(--color-foreground);
     font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+
+  :focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--ring) 70%, transparent);
+    outline-offset: 3px;
   }
 }
 
@@ -161,16 +167,12 @@
   max-width: 480px;
   margin-inline: auto;
   min-height: 100dvh;
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--primary) 6%, var(--background)),
-    var(--background) 220px
-  );
+  background: var(--background);
   position: relative;
 }
 
 .app-content {
-  padding-bottom: 88px; /* space for bottom nav */
+  padding-bottom: 96px; /* space for bottom nav */
 }
 
 /* Soft tile gradients */
@@ -208,7 +210,7 @@
 }
 
 .shadow-soft {
-  box-shadow: 0 6px 24px -8px color-mix(in oklab, var(--primary) 22%, transparent);
+  box-shadow: 0 4px 16px -10px color-mix(in oklab, var(--foreground) 20%, transparent);
 }
 
 @keyframes breathe {
@@ -216,6 +218,15 @@
   50% { transform: scale(1.1); opacity: 1; }
 }
 .animate-breathe { animation: breathe 8s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 /* Leaflet base styles (loaded via CDN in __root) */
 .leaflet-container { font: inherit; }
