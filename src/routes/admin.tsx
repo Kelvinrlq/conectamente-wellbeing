@@ -128,6 +128,24 @@ function Admin() {
     }
   }
 
+  async function baixarCsv() {
+    try {
+      const linhas = await exportar({ data: { dias } });
+      const csv = [
+        "tipo;nome;data",
+        ...linhas.map((l) => `${l.tipo};"${l.nome.replace(/"/g, "'")}";${l.created_at}`),
+      ].join("\n");
+      const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `conectamente-dados-${dias}dias.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Não foi possível baixar os dados");
+    }
+  }
+
   async function excluir(id: string) {
     try {
       await remover({ data: { id } });
