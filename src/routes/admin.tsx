@@ -466,3 +466,54 @@ function Grafico({ titulo, dados }: { titulo: string; dados: { nome: string; tot
     </section>
   );
 }
+
+const ROTULOS: Record<string, string> = {
+  pagina: "Visita de página",
+  clique: "Clique",
+  chat: "Chat",
+  playlist: "Música",
+};
+
+function rotuloTipo(tipo: string) {
+  return ROTULOS[tipo] ?? tipo;
+}
+
+function formatarData(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/Campo_Grande",
+  });
+}
+
+function Tabela({ titulo, linhas }: { titulo: string; linhas: Linha[] }) {
+  return (
+    <div className="mt-4">
+      <h3 className="mb-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        {titulo}
+      </h3>
+      {linhas.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Ainda sem registros neste período.</p>
+      ) : (
+        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+          {linhas.map((l) => (
+            <li key={l.nome} className="px-3 py-2">
+              <div className="flex items-center justify-between gap-3">
+                <span className="truncate text-xs font-semibold text-card-foreground">{l.nome}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {l.total} · {l.pct}%
+                </span>
+              </div>
+              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                <div className="h-full bg-primary" style={{ width: `${l.pct}%` }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
