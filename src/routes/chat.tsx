@@ -79,16 +79,16 @@ function ChatRoute() {
   return (
     <div className="flex h-[100dvh] max-h-[100dvh] flex-col">
       <div className="px-5 pt-5">
-        <Link to="/apoio" className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+        <Link to="/apoio" className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-muted-foreground">
           <ArrowLeft className="h-3 w-3" /> Apoio
         </Link>
       </div>
       <AppHeader subtitle="Conversa Amiga" />
 
       <div className="px-5">
-        <div className="flex items-start gap-2 rounded-2xl border border-aqua/40 bg-aqua/15 p-3">
+        <div className="flex items-start gap-3 rounded-xl border border-aqua/50 bg-aqua/15 p-4">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-aqua-foreground" />
-          <p className="text-[11px] leading-snug text-aqua-foreground">
+          <p className="text-sm leading-relaxed text-aqua-foreground">
             <strong>Anônimo · Não armazenamos suas mensagens.</strong> Em emergência, ligue{" "}
             <a className="font-bold underline" href="tel:188">CVV 188</a> ou{" "}
             <a className="font-bold underline" href="tel:192">SAMU 192</a>.
@@ -143,7 +143,7 @@ function ChatRoute() {
             autoFocus
           />
           <PromptInputFooter className="justify-between">
-            <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
               <AlertTriangle className="h-3 w-3" /> Não substitui atendimento profissional.
             </span>
             <PromptInputSubmit status={status} disabled={isLoading} />

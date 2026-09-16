@@ -51,7 +51,7 @@ export default function MapaApoio({ locais }: { locais: LocalApoio[] }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) {
-    return <div className="h-[320px] w-full animate-pulse rounded-2xl bg-secondary" />;
+    return <div className="h-[320px] w-full animate-pulse rounded-xl bg-secondary" />;
   }
 
   const pontos = locais.filter(
@@ -59,7 +59,7 @@ export default function MapaApoio({ locais }: { locais: LocalApoio[] }) {
   );
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border shadow-soft">
+    <div className="overflow-hidden rounded-xl border border-border shadow-soft">
       <MapContainer
         center={CORUMBA_CENTER}
         zoom={13}
