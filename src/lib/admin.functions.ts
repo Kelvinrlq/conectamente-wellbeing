@@ -57,11 +57,15 @@ export const adminStatus = createServerFn({ method: "GET" }).handler(async () =>
 export const adminLogin = createServerFn({ method: "POST" })
   .inputValidator((data: { senha: string }) => ({ senha: String(data.senha ?? "") }))
   .handler(async ({ data }) => {
-    if (!configuracaoAcessoCompleta()) {
-      return { ok: false as const, reason: "CONFIGURACAO_INCOMPLETA" as const };
-    }
     const esperada = process.env["ADMIN_PASSWORD"];
-    if (!esperada || !data.senha || !senhaConfere(data.senha, esperada)) {
+    if (!esperada) {
+      return { ok: false as const, reason: "SENHA_NAO_CONFIGURADA" as const };
+    }
+    const sessionSecret = process.env["SESSION_SECRET"];
+    if (!sessionSecret || sessionSecret.length < 32) {
+      return { ok: false as const, reason: "SESSAO_NAO_CONFIGURADA" as const };
+    }
+    if (!data.senha || !senhaConfere(data.senha, esperada)) {
       return { ok: false as const, reason: "SENHA_INCORRETA" as const };
     }
     const session = await useSession<AdminSession>(sessionConfig());
