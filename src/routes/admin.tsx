@@ -78,6 +78,7 @@ function Admin() {
   const [salvando, setSalvando] = useState(false);
   const [entrando, setEntrando] = useState(false);
   const [publicacaoIncompleta, setPublicacaoIncompleta] = useState(false);
+  const [statusIndisponivel, setStatusIndisponivel] = useState(false);
   const [dadosIndisponiveis, setDadosIndisponiveis] = useState(false);
 
   const carregarDados = useCallback(
@@ -117,6 +118,7 @@ function Admin() {
   useEffect(() => {
     status()
       .then(async (s) => {
+        setStatusIndisponivel(false);
         setPublicacaoIncompleta(!s.configured);
         setDadosIndisponiveis(!s.dataConfigured);
         setLiberado(s.unlocked);
@@ -124,7 +126,7 @@ function Admin() {
       })
       .catch(() => {
         setLiberado(false);
-        setPublicacaoIncompleta(true);
+        setStatusIndisponivel(true);
       })
       .finally(() => setCarregando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -136,15 +138,19 @@ function Admin() {
     try {
       const r = await login({ data: { senha } });
       if (!r.ok) {
-        if (r.reason === "CONFIGURACAO_INCOMPLETA") {
+        if (r.reason === "SENHA_NAO_CONFIGURADA") {
           setPublicacaoIncompleta(true);
-          toast.error("A publicação da Vercel ainda não está configurada para o painel.");
+          toast.error("A senha do painel não está disponível nesta publicação.");
+        } else if (r.reason === "SESSAO_NAO_CONFIGURADA") {
+          setPublicacaoIncompleta(true);
+          toast.error("A sessão do painel não está configurada nesta publicação.");
         } else {
           toast.error("Senha incorreta");
         }
         return;
       }
       setPublicacaoIncompleta(false);
+      setStatusIndisponivel(false);
       setDadosIndisponiveis(!r.dataConfigured);
       setSenha("");
       setLiberado(true);
@@ -238,6 +244,12 @@ function Admin() {
                 </p>
               </div>
             ) : null}
+            {statusIndisponivel && !publicacaoIncompleta ? (
+              <div role="alert" className="mt-4 flex gap-3 rounded-xl border border-border bg-muted p-3 text-sm text-foreground">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+                <p>Não foi possível confirmar a configuração agora. Você ainda pode tentar entrar.</p>
+              </div>
+            ) : null}
             <input
               type="password"
               value={senha}
@@ -248,8 +260,8 @@ function Admin() {
             />
             <button
               type="submit"
-              disabled={entrando || publicacaoIncompleta}
-              className="mt-3 w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
+              disabled={entrando}
+              className="mt-3 w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
             >
               {entrando ? "Entrando…" : "Entrar"}
             </button>
