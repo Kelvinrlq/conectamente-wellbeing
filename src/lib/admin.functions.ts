@@ -5,12 +5,27 @@ import { createHash, timingSafeEqual } from "node:crypto";
 type AdminSession = { unlocked?: boolean };
 
 function sessionConfig() {
+  const password = process.env["SESSION_SECRET"];
+  if (!password || password.length < 32) {
+    throw new Error("CONFIGURACAO_SESSION_SECRET");
+  }
   return {
-    password: process.env["SESSION_SECRET"]!,
+    password,
     name: "conectamente-admin",
     maxAge: 60 * 60 * 24 * 7,
     cookie: { httpOnly: true, secure: true, sameSite: "none" as const, path: "/" },
   };
+}
+
+function configuracaoPublicacaoCompleta() {
+  const sessionSecret = process.env["SESSION_SECRET"];
+  return Boolean(
+    process.env["ADMIN_PASSWORD"] &&
+      sessionSecret &&
+      sessionSecret.length >= 32 &&
+      process.env["SUPABASE_URL"] &&
+      process.env["SUPABASE_SERVICE_ROLE_KEY"],
+  );
 }
 
 function senhaConfere(entrada: string, esperada: string) {
@@ -26,16 +41,23 @@ async function exigirAdmin() {
 }
 
 export const adminStatus = createServerFn({ method: "GET" }).handler(async () => {
+  if (!configuracaoPublicacaoCompleta()) {
+    return { unlocked: false, configured: false } as const;
+  }
   const session = await useSession<AdminSession>(sessionConfig());
-  return { unlocked: session.data.unlocked === true };
+  return { unlocked: session.data.unlocked === true, configured: true } as const;
 });
 
 export const adminLogin = createServerFn({ method: "POST" })
   .inputValidator((data: { senha: string }) => ({ senha: String(data.senha ?? "") }))
   .handler(async ({ data }) => {
+    if (!configuracaoPublicacaoCompleta()) {
+      return { ok: false as const, reason: "CONFIGURACAO_INCOMPLETA" as const };
+    }
     const esperada = process.env["ADMIN_PASSWORD"];
-    if (!esperada) return { ok: false as const };
-    if (!data.senha || !senhaConfere(data.senha, esperada)) return { ok: false as const };
+    if (!esperada || !data.senha || !senhaConfere(data.senha, esperada)) {
+      return { ok: false as const, reason: "SENHA_INCORRETA" as const };
+    }
     const session = await useSession<AdminSession>(sessionConfig());
     await session.update({ unlocked: true });
     return { ok: true as const };

@@ -25,6 +25,7 @@ import {
   MessageCircle,
   Music,
   Download,
+  AlertTriangle,
 } from "lucide-react";
 import {
   BarChart,
@@ -75,6 +76,8 @@ function Admin() {
   const [playlists, setPlaylists] = useState<PlaylistAdmin[]>([]);
   const [form, setForm] = useState({ categoria: "natureza", nome: "", link: "", descricao: "" });
   const [salvando, setSalvando] = useState(false);
+  const [entrando, setEntrando] = useState(false);
+  const [publicacaoIncompleta, setPublicacaoIncompleta] = useState(false);
 
   const carregarDados = useCallback(
     async (periodo: number) => {
@@ -103,24 +106,41 @@ function Admin() {
   useEffect(() => {
     status()
       .then(async (s) => {
+        setPublicacaoIncompleta(!s.configured);
         setLiberado(s.unlocked);
         if (s.unlocked) await carregarDados(7);
       })
-      .catch(() => setLiberado(false))
+      .catch(() => {
+        setLiberado(false);
+        setPublicacaoIncompleta(true);
+      })
       .finally(() => setCarregando(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
-    const r = await login({ data: { senha } });
-    if (!r.ok) {
-      toast.error("Senha incorreta");
-      return;
+    setEntrando(true);
+    try {
+      const r = await login({ data: { senha } });
+      if (!r.ok) {
+        if (r.reason === "CONFIGURACAO_INCOMPLETA") {
+          setPublicacaoIncompleta(true);
+          toast.error("A publicação da Vercel ainda não está configurada para o painel.");
+        } else {
+          toast.error("Senha incorreta");
+        }
+        return;
+      }
+      setPublicacaoIncompleta(false);
+      setSenha("");
+      setLiberado(true);
+      await carregarDados(dias);
+    } catch {
+      toast.error("Não foi possível entrar. Tente novamente.");
+    } finally {
+      setEntrando(false);
     }
-    setSenha("");
-    setLiberado(true);
-    await carregarDados(dias);
   }
 
   async function trocarPeriodo(p: number) {
@@ -197,6 +217,14 @@ function Admin() {
             <p className="mt-1 text-xs text-muted-foreground">
               Digite a senha de acesso para continuar.
             </p>
+            {publicacaoIncompleta ? (
+              <div role="alert" className="mt-4 flex gap-3 rounded-xl border border-border bg-muted p-3 text-sm text-foreground">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+                <p>
+                  A publicação está incompleta. Configure as chaves do painel no ambiente Production da Vercel e faça um novo deploy.
+                </p>
+              </div>
+            ) : null}
             <input
               type="password"
               value={senha}
@@ -207,9 +235,10 @@ function Admin() {
             />
             <button
               type="submit"
+              disabled={entrando || publicacaoIncompleta}
               className="mt-3 w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
             >
-              Entrar
+              {entrando ? "Entrando…" : "Entrar"}
             </button>
           </div>
         </form>
