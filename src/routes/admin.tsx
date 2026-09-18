@@ -78,6 +78,7 @@ function Admin() {
   const [salvando, setSalvando] = useState(false);
   const [entrando, setEntrando] = useState(false);
   const [publicacaoIncompleta, setPublicacaoIncompleta] = useState(false);
+  const [dadosIndisponiveis, setDadosIndisponiveis] = useState(false);
 
   const carregarDados = useCallback(
     async (periodo: number) => {
@@ -97,6 +98,16 @@ function Admin() {
           toast.error("Sessão expirada. Entre novamente.");
           return;
         }
+        if (
+          msg.includes("Missing Supabase environment variable") ||
+          msg.includes("SUPABASE_URL") ||
+          msg.includes("SUPABASE_SERVICE_ROLE_KEY")
+        ) {
+          setDadosIndisponiveis(true);
+          setMetricas(null);
+          setPlaylists([]);
+          return;
+        }
         toast.error("Não foi possível carregar os dados");
       }
     },
@@ -107,8 +118,9 @@ function Admin() {
     status()
       .then(async (s) => {
         setPublicacaoIncompleta(!s.configured);
+        setDadosIndisponiveis(!s.dataConfigured);
         setLiberado(s.unlocked);
-        if (s.unlocked) await carregarDados(7);
+        if (s.unlocked && s.dataConfigured) await carregarDados(7);
       })
       .catch(() => {
         setLiberado(false);
@@ -133,9 +145,10 @@ function Admin() {
         return;
       }
       setPublicacaoIncompleta(false);
+      setDadosIndisponiveis(!r.dataConfigured);
       setSenha("");
       setLiberado(true);
-      await carregarDados(dias);
+      if (r.dataConfigured) await carregarDados(dias);
     } catch {
       toast.error("Não foi possível entrar. Tente novamente.");
     } finally {
@@ -276,6 +289,15 @@ function Admin() {
         </button>
       </div>
 
+      {dadosIndisponiveis ? (
+        <div role="alert" className="mx-5 mt-4 flex gap-3 rounded-xl border border-border bg-muted p-3 text-sm text-foreground">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+          <p>
+            O acesso ao painel está funcionando, mas os dados e as playlists não estão disponíveis nesta publicação.
+          </p>
+        </div>
+      ) : null}
+
       {metricas ? (
         <>
           <section className="grid grid-cols-2 gap-3 px-5 pt-4">
@@ -382,7 +404,7 @@ function Admin() {
         </>
       ) : null}
 
-      <section className="px-5 pt-8">
+      {!dadosIndisponiveis ? <section className="px-5 pt-8">
         <h2 className="mb-2 text-sm font-bold text-foreground">Playlists</h2>
         <form onSubmit={salvarMusica} className="rounded-2xl border border-border bg-card p-4">
           <select
@@ -462,7 +484,7 @@ function Admin() {
             );
           })}
         </div>
-      </section>
+      </section> : null}
     </div>
   );
 }

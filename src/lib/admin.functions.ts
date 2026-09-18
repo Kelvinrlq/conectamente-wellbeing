@@ -17,15 +17,17 @@ function sessionConfig() {
   };
 }
 
-function configuracaoPublicacaoCompleta() {
+function configuracaoAcessoCompleta() {
   const sessionSecret = process.env["SESSION_SECRET"];
   return Boolean(
     process.env["ADMIN_PASSWORD"] &&
       sessionSecret &&
-      sessionSecret.length >= 32 &&
-      process.env["SUPABASE_URL"] &&
-      process.env["SUPABASE_SERVICE_ROLE_KEY"],
+      sessionSecret.length >= 32,
   );
+}
+
+function configuracaoDadosCompleta() {
+  return Boolean(process.env["SUPABASE_URL"] && process.env["SUPABASE_SERVICE_ROLE_KEY"]);
 }
 
 function senhaConfere(entrada: string, esperada: string) {
@@ -41,17 +43,21 @@ async function exigirAdmin() {
 }
 
 export const adminStatus = createServerFn({ method: "GET" }).handler(async () => {
-  if (!configuracaoPublicacaoCompleta()) {
-    return { unlocked: false, configured: false } as const;
+  if (!configuracaoAcessoCompleta()) {
+    return { unlocked: false, configured: false, dataConfigured: false } as const;
   }
   const session = await useSession<AdminSession>(sessionConfig());
-  return { unlocked: session.data.unlocked === true, configured: true } as const;
+  return {
+    unlocked: session.data.unlocked === true,
+    configured: true,
+    dataConfigured: configuracaoDadosCompleta(),
+  } as const;
 });
 
 export const adminLogin = createServerFn({ method: "POST" })
   .inputValidator((data: { senha: string }) => ({ senha: String(data.senha ?? "") }))
   .handler(async ({ data }) => {
-    if (!configuracaoPublicacaoCompleta()) {
+    if (!configuracaoAcessoCompleta()) {
       return { ok: false as const, reason: "CONFIGURACAO_INCOMPLETA" as const };
     }
     const esperada = process.env["ADMIN_PASSWORD"];
@@ -60,7 +66,7 @@ export const adminLogin = createServerFn({ method: "POST" })
     }
     const session = await useSession<AdminSession>(sessionConfig());
     await session.update({ unlocked: true });
-    return { ok: true as const };
+    return { ok: true as const, dataConfigured: configuracaoDadosCompleta() };
   });
 
 export const adminLogout = createServerFn({ method: "POST" }).handler(async () => {
