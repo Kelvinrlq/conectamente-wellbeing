@@ -43,9 +43,7 @@ async function chamarBancoRemoto<T>(
   payload: Record<string, unknown> = {},
 ): Promise<T> {
   const adminPassword = process.env["ADMIN_PASSWORD"];
-  const sessionSecret = process.env["SESSION_SECRET"];
   if (!adminPassword) throw new Error("SENHA_NAO_CONFIGURADA");
-  if (!sessionSecret) throw new Error("SESSAO_NAO_CONFIGURADA");
   const response = await fetch(`${BANCO_URL}/rest/v1/rpc/conectamente_admin_data`, {
     method: "POST",
     headers: {
@@ -54,7 +52,6 @@ async function chamarBancoRemoto<T>(
     },
     body: JSON.stringify({
       _admin_password: adminPassword,
-      _session_secret: sessionSecret,
       _action: action,
       _days: days,
       _payload: payload,
