@@ -102,7 +102,8 @@ function Admin() {
         if (
           msg.includes("Missing Supabase environment variable") ||
           msg.includes("SUPABASE_URL") ||
-          msg.includes("SUPABASE_SERVICE_ROLE_KEY")
+          msg.includes("SUPABASE_SERVICE_ROLE_KEY") ||
+          msg.includes("DADOS_REMOTOS_INDISPONIVEIS")
         ) {
           setDadosIndisponiveis(true);
           setMetricas(null);
@@ -304,9 +305,19 @@ function Admin() {
       {dadosIndisponiveis ? (
         <div role="alert" className="mx-5 mt-4 flex gap-3 rounded-xl border border-border bg-muted p-3 text-sm text-foreground">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
-          <p>
-            O acesso ao painel está funcionando, mas os dados e as playlists não estão disponíveis nesta publicação.
-          </p>
+          <div>
+            <p>Não foi possível carregar os dados agora.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setDadosIndisponiveis(false);
+                void carregarDados(dias);
+              }}
+              className="mt-2 font-semibold text-primary underline underline-offset-4"
+            >
+              Tentar novamente
+            </button>
+          </div>
         </div>
       ) : null}
 

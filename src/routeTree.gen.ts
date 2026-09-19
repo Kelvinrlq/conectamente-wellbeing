@@ -20,6 +20,7 @@ import { Route as ApoioRouteImport } from './routes/apoio'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiPublicAdminDataRouteImport } from './routes/api/public/admin-data'
 
 const ReflexoesRoute = ReflexoesRouteImport.update({
   id: '/reflexoes',
@@ -76,6 +77,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAdminDataRoute = ApiPublicAdminDataRouteImport.update({
+  id: '/api/public/admin-data',
+  path: '/api/public/admin-data',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/recursos': typeof RecursosRoute
   '/reflexoes': typeof ReflexoesRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/public/admin-data': typeof ApiPublicAdminDataRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/recursos': typeof RecursosRoute
   '/reflexoes': typeof ReflexoesRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/public/admin-data': typeof ApiPublicAdminDataRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/recursos': typeof RecursosRoute
   '/reflexoes': typeof ReflexoesRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/public/admin-data': typeof ApiPublicAdminDataRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/recursos'
     | '/reflexoes'
     | '/api/chat'
+    | '/api/public/admin-data'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/recursos'
     | '/reflexoes'
     | '/api/chat'
+    | '/api/public/admin-data'
   id:
     | '__root__'
     | '/'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/recursos'
     | '/reflexoes'
     | '/api/chat'
+    | '/api/public/admin-data'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   RecursosRoute: typeof RecursosRoute
   ReflexoesRoute: typeof ReflexoesRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiPublicAdminDataRoute: typeof ApiPublicAdminDataRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/admin-data': {
+      id: '/api/public/admin-data'
+      path: '/api/public/admin-data'
+      fullPath: '/api/public/admin-data'
+      preLoaderRoute: typeof ApiPublicAdminDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecursosRoute: RecursosRoute,
   ReflexoesRoute: ReflexoesRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiPublicAdminDataRoute: ApiPublicAdminDataRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -44,9 +44,7 @@ async function chamarPonte<T>(pedido: Record<string, unknown>): Promise<T> {
   if (!secret) throw new Error("SENHA_NAO_CONFIGURADA");
   const timestamp = String(Date.now());
   const corpo = JSON.stringify(pedido);
-  const assinatura = createHash("sha256");
   const { createHmac } = await import("node:crypto");
-  assinatura.update("");
   const signature = createHmac("sha256", secret).update(`${timestamp}.${corpo}`).digest("hex");
   const response = await fetch(`${ADMIN_DATA_ORIGIN}/api/public/admin-data`, {
     method: "POST",

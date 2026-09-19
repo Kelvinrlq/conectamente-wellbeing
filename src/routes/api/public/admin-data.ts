@@ -50,7 +50,13 @@ export const Route = createFileRoute("/api/public/admin-data")({
           return resposta({ error: "Não autorizado" }, 401);
         }
 
-        const parsed = pedidoSchema.safeParse(JSON.parse(corpo));
+        let json: unknown;
+        try {
+          json = JSON.parse(corpo);
+        } catch {
+          return resposta({ error: "Solicitação inválida" }, 400);
+        }
+        const parsed = pedidoSchema.safeParse(json);
         if (!parsed.success) return resposta({ error: "Solicitação inválida" }, 400);
 
         const {
