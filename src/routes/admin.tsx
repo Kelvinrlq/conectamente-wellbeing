@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   adminStatus,
   adminLogin,
@@ -80,17 +80,24 @@ function Admin() {
   const [publicacaoIncompleta, setPublicacaoIncompleta] = useState(false);
   const [statusIndisponivel, setStatusIndisponivel] = useState(false);
   const [dadosIndisponiveis, setDadosIndisponiveis] = useState(false);
+  const [carregandoDados, setCarregandoDados] = useState(false);
+  const requisicaoAtual = useRef(0);
 
   const carregarDados = useCallback(
     async (periodo: number) => {
+      const requisicao = ++requisicaoAtual.current;
+      setCarregandoDados(true);
       try {
         const [m, p] = await Promise.all([
           metricasFn({ data: { dias: periodo } }),
           listar(),
         ]);
+        if (requisicao !== requisicaoAtual.current) return;
         setMetricas(m);
         setPlaylists(p);
+        setDadosIndisponiveis(false);
       } catch (err) {
+        if (requisicao !== requisicaoAtual.current) return;
         const msg = err instanceof Error ? err.message : "";
         if (msg.includes("NAO_AUTORIZADO")) {
           setLiberado(false);
@@ -106,11 +113,12 @@ function Admin() {
           msg.includes("DADOS_REMOTOS_INDISPONIVEIS")
         ) {
           setDadosIndisponiveis(true);
-          setMetricas(null);
-          setPlaylists([]);
           return;
         }
+        setDadosIndisponiveis(true);
         toast.error("Não foi possível carregar os dados");
+      } finally {
+        if (requisicao === requisicaoAtual.current) setCarregandoDados(false);
       }
     },
     [metricasFn, listar],
@@ -310,12 +318,12 @@ function Admin() {
             <button
               type="button"
               onClick={() => {
-                setDadosIndisponiveis(false);
                 void carregarDados(dias);
               }}
+              disabled={carregandoDados}
               className="mt-2 font-semibold text-primary underline underline-offset-4"
             >
-              Tentar novamente
+              {carregandoDados ? "Carregando…" : "Tentar novamente"}
             </button>
           </div>
         </div>
