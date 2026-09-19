@@ -27,33 +27,38 @@ function configuracaoAcessoCompleta() {
 }
 
 function configuracaoDadosCompleta() {
-  return Boolean(
-    (process.env["SUPABASE_URL"] && process.env["SUPABASE_SERVICE_ROLE_KEY"]) ||
-      process.env["ADMIN_PASSWORD"],
-  );
+  return configuracaoAcessoCompleta();
 }
 
-const ADMIN_DATA_ORIGIN = "https://project--96b15176-7e6d-4c77-b9c9-924e5196e6d8-dev.lovable.app";
+const BANCO_URL = "https://jhzwremdyvxiiibixeip.supabase.co";
+const BANCO_PUBLIC_KEY = "sb_publishable_0QURHdpWlrsCXo3nOWni_w_O3FAnacT";
 
 function temBancoLocal() {
   return Boolean(process.env["SUPABASE_URL"] && process.env["SUPABASE_SERVICE_ROLE_KEY"]);
 }
 
-async function chamarPonte<T>(pedido: Record<string, unknown>): Promise<T> {
-  const secret = process.env["ADMIN_PASSWORD"];
-  if (!secret) throw new Error("SENHA_NAO_CONFIGURADA");
-  const timestamp = String(Date.now());
-  const corpo = JSON.stringify(pedido);
-  const { createHmac } = await import("node:crypto");
-  const signature = createHmac("sha256", secret).update(`${timestamp}.${corpo}`).digest("hex");
-  const response = await fetch(`${ADMIN_DATA_ORIGIN}/api/public/admin-data`, {
+async function chamarBancoRemoto<T>(
+  action: string,
+  days = 7,
+  payload: Record<string, unknown> = {},
+): Promise<T> {
+  const adminPassword = process.env["ADMIN_PASSWORD"];
+  const sessionSecret = process.env["SESSION_SECRET"];
+  if (!adminPassword) throw new Error("SENHA_NAO_CONFIGURADA");
+  if (!sessionSecret) throw new Error("SESSAO_NAO_CONFIGURADA");
+  const response = await fetch(`${BANCO_URL}/rest/v1/rpc/conectamente_admin_data`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-conectamente-timestamp": timestamp,
-      "x-conectamente-signature": signature,
+      apikey: BANCO_PUBLIC_KEY,
     },
-    body: corpo,
+    body: JSON.stringify({
+      _admin_password: adminPassword,
+      _session_secret: sessionSecret,
+      _action: action,
+      _days: days,
+      _payload: payload,
+    }),
   });
   if (!response.ok) throw new Error(`DADOS_REMOTOS_INDISPONIVEIS_${response.status}`);
   return (await response.json()) as T;
@@ -153,19 +158,21 @@ export const obterMetricas = createServerFn({ method: "POST" })
   })
   .handler(async ({ data }): Promise<Metricas> => {
     await exigirAdmin();
-    if (!temBancoLocal()) return chamarPonte<Metricas>({ action: "metricas", dias: data.dias });
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const desde = new Date(Date.now() - data.dias * 24 * 60 * 60 * 1000).toISOString();
-
-    const { data: rows, error } = await supabaseAdmin
-      .from("analytics_events")
-      .select("tipo, nome, created_at")
-      .gte("created_at", desde)
-      .order("created_at", { ascending: false })
-      .limit(50000);
-
-    if (error) throw new Error(error.message);
-    const eventos = (rows ?? []) as { tipo: string; nome: string; created_at: string }[];
+    let eventos: { tipo: string; nome: string; created_at: string }[];
+    if (temBancoLocal()) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const desde = new Date(Date.now() - data.dias * 24 * 60 * 60 * 1000).toISOString();
+      const { data: rows, error } = await supabaseAdmin
+        .from("analytics_events")
+        .select("tipo, nome, created_at")
+        .gte("created_at", desde)
+        .order("created_at", { ascending: false })
+        .limit(50000);
+      if (error) throw new Error(error.message);
+      eventos = (rows ?? []) as { tipo: string; nome: string; created_at: string }[];
+    } else {
+      eventos = await chamarBancoRemoto("events", data.dias);
+    }
 
     const paginas = eventos.filter((e) => e.tipo === "pagina");
     const cliques = eventos.filter((e) => e.tipo === "clique");
@@ -224,10 +231,7 @@ export const exportarEventos = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await exigirAdmin();
     if (!temBancoLocal()) {
-      return chamarPonte<{ tipo: string; nome: string; created_at: string }[]>({
-        action: "eventos",
-        dias: data.dias,
-      });
+      return chamarBancoRemoto<{ tipo: string; nome: string; created_at: string }[]>("events", data.dias);
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const desde = new Date(Date.now() - data.dias * 24 * 60 * 60 * 1000).toISOString();
@@ -252,7 +256,7 @@ export type PlaylistAdmin = {
 
 export const adminListarPlaylists = createServerFn({ method: "POST" }).handler(async () => {
   await exigirAdmin();
-  if (!temBancoLocal()) return chamarPonte<PlaylistAdmin[]>({ action: "listarPlaylists" });
+  if (!temBancoLocal()) return chamarBancoRemoto<PlaylistAdmin[]>("playlists");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("playlists")
@@ -294,7 +298,7 @@ export const adminAdicionarPlaylist = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await exigirAdmin();
     if (!temBancoLocal()) {
-      return chamarPonte<{ ok: true }>({ action: "adicionarPlaylist", playlist: data });
+      return chamarBancoRemoto<{ ok: true }>("add_playlist", 7, data);
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { count } = await supabaseAdmin
@@ -313,7 +317,7 @@ export const adminRemoverPlaylist = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await exigirAdmin();
     if (!temBancoLocal()) {
-      return chamarPonte<{ ok: true }>({ action: "removerPlaylist", id: data.id });
+      return chamarBancoRemoto<{ ok: true }>("remove_playlist", 7, { id: data.id });
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("playlists").delete().eq("id", data.id);
