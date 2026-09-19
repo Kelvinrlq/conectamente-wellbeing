@@ -70,7 +70,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      conectamente_admin_data: {
+        Args: {
+          _action: string
+          _admin_password: string
+          _days?: number
+          _payload?: Json
+          _session_secret: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
